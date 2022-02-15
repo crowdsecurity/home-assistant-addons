@@ -2,12 +2,9 @@ name: Builder
 
 env:
   BUILD_ARGS: "--test"
-  MONITORED_FILES: "build.yaml config.yaml Dockerfile"
+  MONITORED_FILES: "build.yaml config.yaml Dockerfile run.sh"
 
 on:
-  push:
-    branches:
-      - main
   workflow_run:
     workflows: ["Lint"]
     branches: [main]

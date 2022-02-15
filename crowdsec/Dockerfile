@@ -32,4 +32,3 @@ COPY run.sh /
 RUN chmod a+x /run.sh
 
 CMD ["./run.sh"]
-#ENTRYPOINT /bin/sh /run.sh
