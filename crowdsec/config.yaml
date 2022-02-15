@@ -9,7 +9,7 @@ arch:
   - aarch64
   - armv7
   - i386
-#image: "ghcr.io/crowdsecurity/{arch}-addon-crowdsec"
+image: "ghcr.io/crowdsecurity/{arch}-addon-crowdsec"
 options:
   acquisition: |
     ---
