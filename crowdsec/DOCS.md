@@ -15,5 +15,6 @@ comparison to installing any other Home Assistant add-on.
 ## Configuration
 
 
+
 ## Support
 
