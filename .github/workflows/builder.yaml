@@ -5,11 +5,9 @@ env:
   MONITORED_FILES: "build.yaml config.yaml Dockerfile run.sh"
 
 on:
-  workflow_run:
-    workflows: ["Lint"]
-    branches: [main]
-    types:
-      - completed
+  push:
+    branches:
+      - main
 
 jobs:
   init:
