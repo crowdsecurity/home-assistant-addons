@@ -71,11 +71,6 @@ jobs:
         with:
           path: "./${{ matrix.addon }}"
 
-      - name: 🚀 Run Home Assistant Add-on Lint
-        uses: frenck/action-addon-linter@v2.6
-        with:
-          addon: "./${{ matrix.addon }}"
-
       - name: Check if add-on should be built
         id: check
         run: |
