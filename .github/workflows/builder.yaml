@@ -51,21 +51,6 @@ jobs:
           else
             echo "No add-on had any monitored files changed (${{ env.MONITORED_FILES }})";
           fi
-  lint:
-    name: Lint add-on ${{ matrix.addon }}
-    runs-on: ubuntu-latest
-    needs: init
-    strategy:
-      matrix:
-        addon: ${{ fromJson(needs.init.outputs.changed_addons) }}
-    steps:
-      - name: ⤵️ Check out code from GitHub
-        uses: actions/checkout@v2.4.0
-
-      - name: 🚀 Run Home Assistant Add-on Lint
-        uses: frenck/action-addon-linter@v2.6
-        with:
-          addon: "./${{ matrix.addon }}"
   build:
     needs: init
     runs-on: ubuntu-latest
@@ -85,6 +70,11 @@ jobs:
         uses: home-assistant/actions/helpers/info@master
         with:
           path: "./${{ matrix.addon }}"
+
+      - name: 🚀 Run Home Assistant Add-on Lint
+        uses: frenck/action-addon-linter@v2.6
+        with:
+          addon: "./${{ matrix.addon }}"
 
       - name: Check if add-on should be built
         id: check
