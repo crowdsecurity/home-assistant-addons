@@ -20,6 +20,7 @@ COPY --from=hessahely/crowdsec:debian /docker_start.sh /docker_start.sh
 COPY --from=hessahely/crowdsec:debian /staging/etc/crowdsec/config.yaml /etc/crowdsec/config.yaml
 #Due to the wizard using cp -n, we have to copy the config files directly from the source as -n does not exist in busybox cp
 #The files are here for reference, as users will need to mount a new version to be actually able to use notifications
+COPY --from=hessahely/crowdsec:debian /staging/etc/crowdsec/notifications/email.yaml /etc/crowdsec/notifications/email.yaml
 COPY --from=hessahely/crowdsec:debian /staging/etc/crowdsec/notifications/http.yaml /etc/crowdsec/notifications/http.yaml
 COPY --from=hessahely/crowdsec:debian /staging/etc/crowdsec/notifications/slack.yaml /etc/crowdsec/notifications/slack.yaml
 COPY --from=hessahely/crowdsec:debian /staging/etc/crowdsec/notifications/splunk.yaml /etc/crowdsec/notifications/splunk.yaml

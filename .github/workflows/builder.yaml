@@ -64,6 +64,9 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v2.4.0
+      
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
 
       - name: Get information
         id: info

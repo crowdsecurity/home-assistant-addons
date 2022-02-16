@@ -4,17 +4,87 @@
 
 ## Installation
 
-The installation of this add-on is pretty straightforward and not different in
-comparison to installing any other Home Assistant add-on.
+Follow these steps to get the add-on installed on your system:
 
-1. Add Crowdsec addons repository in the add-on store
-1. Search for the "Crowdsec" add-on in the add-on store and install it.
-2. Start the "Crowdsec" add-on.
-3. Check the logs of the "Crowdsec" add-on to see it in action.
+1. Navigate in your Home Assistant frontend to **Supervisor** -> **Add-on Store**.
+2. Click on the icon at the top right then **respositories** and add `https://github.com/crowdsecurity/home-assistant-addons`
+2. Find the "Crowdsec" add-on in Crowdsec add-ons repository and click it.
+3. Click on the "INSTALL" button.
 
-## Configuration
+## How to use
 
+The add-on is configured by default to parse and detect bruteforce on home-assistant login interface.
 
+## Add-on Configuration
+
+The Crowdsec add-on has `journald` [option](https://developers.home-assistant.io/docs/add-ons/configuration#optional-configuration-options) activated to map host system journal to process all the logs (even others add-ons logs).
+With that, you can even parse and detect behaviors on Nginx Proxy Manager or Nginx addons for example.
+
+This add-on has also persistent config and data files that are store at `/config/.storage/crowdsec/`.
+
+```yaml
+acquisition: |
+  ---
+  source: journalctl
+  journalctl_filter: 
+    - "--directory=/var/log/journal/"
+  labels:
+    type: syslog
+collections:
+  - crowdsecurity/home-assistant
+parsers: []
+scenarios: []
+postoverflows: []
+parsers_to_disable:
+  - crowdsecurity/whitelists
+scenarios_to_disable: []
+disable_online_api: false
+```
+
+### Option: `acquisition` (required)
+
+Acquisition config file for crowdsec ([see documentation](https://docs.crowdsec.net/docs/next/concepts/#acquisition)).
+The default acquisition allow Crowdsec add-on to process all logs from the host system journal.
+
+### Option: `collections` (optional)
+
+All the [collections](https://docs.crowdsec.net/docs/next/user_guides/hub_mgmt/#collections) you want to install before running crowdsec.
+
+### Option: `parsers` (optional)
+
+All the [parsers](https://docs.crowdsec.net/docs/next/user_guides/hub_mgmt/#parsers) you want to install before running crowdsec.
+
+### Option: `scenarios` (optional)
+
+All the [scenarios](https://docs.crowdsec.net/docs/next/user_guides/hub_mgmt/#scenarios) you want to install before running crowdsec.
+
+### Option: `postoverflows` (optional)
+
+All the [postoverflows](https://docs.crowdsec.net/docs/next/parsers/intro/#postoverflows) you want to install before running crowdsec.
+
+### Option: `parsers_to_disable` (optional)
+
+All the parsers you want to remove before running crowdsec.
+
+### Option: `scenarios_to_disable` (optional)
+
+All the scenarios you want to remove before running crowdsec.
+
+### Option: `disable_online_api` (optional)
+
+Disable Online API registration for signal sharing.
 
 ## Support
 
+Got questions?
+
+You have several options to get them answered:
+
+- The [Crowdsec Discord Chat Server][discord].
+- The Home Assistant [Community Forum][forum].
+
+In case you've found a bug, please [open an issue on our GitHub][issue].
+
+[discord]: https://discord.gg/wGN7ShmEE8
+[forum]: https://discourse.crowdsec.net/
+[issue]: https://github.com/crowdsecurity/home-assistant-addons/issues
