@@ -54,7 +54,7 @@ jobs:
   lint:
     name: Lint add-on ${{ matrix.addon }}
     runs-on: ubuntu-latest
-    needs: find
+    needs: init
     strategy:
       matrix:
         addon: ${{ fromJson(needs.init.outputs.changed_addons) }}
