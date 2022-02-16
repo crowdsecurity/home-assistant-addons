@@ -51,14 +51,30 @@ jobs:
           else
             echo "No add-on had any monitored files changed (${{ env.MONITORED_FILES }})";
           fi
+  lint:
+    name: Lint add-on ${{ matrix.addon }}
+    runs-on: ubuntu-latest
+    needs: find
+    strategy:
+      matrix:
+        addon: ${{ fromJson(needs.init.outputs.changed_addons) }}
+    steps:
+      - name: ⤵️ Check out code from GitHub
+        uses: actions/checkout@v2.4.0
+
+      - name: 🚀 Run Home Assistant Add-on Lint
+        uses: frenck/action-addon-linter@v2.6
+        with:
+          addon: "./${{ matrix.addon }}"
   build:
     needs: init
     runs-on: ubuntu-latest
     if: needs.init.outputs.changed == 'true'
-    name: Build ${{ matrix.addon }} add-on
+    name: Build ${{ matrix.arch }} ${{ matrix.addon }} add-on
     strategy:
       matrix:
         addon: ${{ fromJson(needs.init.outputs.changed_addons) }}
+        arch: ["aarch64", "amd64", "armhf", "armv7", "i386"]
 
     steps:
       - name: Check out repository
@@ -73,9 +89,15 @@ jobs:
       - name: Check if add-on should be built
         id: check
         run: |
-          echo "::set-output name=image::$(echo ${{ steps.info.outputs.image }} | cut -d'/' -f3)";
-          if [[ -z "${{ github.head_ref }}" ]] && [[ "${{ github.event_name }}" == "push" ]]; then
-              echo "BUILD_ARGS=" >> $GITHUB_ENV;
+          if [[ "${{ steps.info.outputs.architectures }}" =~ ${{ matrix.arch }} ]]; then
+             echo "::set-output name=build_arch::true";
+             echo "::set-output name=image::$(echo ${{ steps.info.outputs.image }} | cut -d'/' -f3)";
+             if [[ -z "${{ github.head_ref }}" ]] && [[ "${{ github.event_name }}" == "push" ]]; then
+                 echo "BUILD_ARGS=" >> $GITHUB_ENV;
+             fi
+           else
+             echo "${{ matrix.arch }} is not a valid arch for ${{ matrix.addon }}, skipping build";
+             echo "::set-output name=build_arch::false";
           fi
       - name: Login to GitHub Container Registry
         if: env.BUILD_ARGS != '--test'
@@ -86,11 +108,13 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build ${{ matrix.addon }} add-on
+        if: steps.check.outputs.build_arch == 'true'
         uses: home-assistant/builder@2022.01.0
         with:
           args: |
             ${{ env.BUILD_ARGS }} \
-            --all \
+            --${{ matrix.arch }} \
             --target /data/${{ matrix.addon }} \
+            --image "${{ steps.check.outputs.image }}" \
             --docker-hub "ghcr.io/${{ github.repository_owner }}" \
             --addon
