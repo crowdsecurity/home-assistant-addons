@@ -41,6 +41,7 @@ fi
 echo "${acquisition}" > /config/.storage/crowdsec/config/acquis.yaml
 
 ## Environment variables settings
+
 # Disable or not the Online API
 if bashio::var.true "${disable_online_api}"; then
     echo "DISABLE ONLINE API..."
