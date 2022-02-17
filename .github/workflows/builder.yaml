@@ -131,7 +131,7 @@ jobs:
           push: true
           tags: |
             ghcr.io/${{ github.repository_owner }}/${{ matrix.arch }}$-addon-${{ matrix.addon }}:${{ steps.check.outputs.image }}
-          platforms: ${{ matrix.arch }}
+          platforms: ${{ steps.flags.outputs.platform }}
           build-args:
             BUILD_ARCH=${{ matrix.arch }}
             BUILD_DATE=${{ steps.flags.outputs.date }}
