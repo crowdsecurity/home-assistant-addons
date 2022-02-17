@@ -139,12 +139,12 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/${{ matrix.arch }}-addon-${{ matrix.addon }}:${{ steps.fetch_crowdsec_release.outputs.release }}
           platforms: ${{ steps.flags.outputs.platform }}
           build-args:
-            BUILD_ARCH=${{ matrix.arch }}
-            BUILD_DATE=${{ steps.flags.outputs.date }}
-            BUILD_FROM=${{ steps.flags.outputs.from }}
-            BUILD_REF=${{ github.sha }}
-            BUILD_REPOSITORY=${{ github.repository }}
-            BUILD_VERSION=${{ needs.information.outputs.version }}
+            - BUILD_ARCH=${{ matrix.arch }}
+            - BUILD_DATE=${{ steps.flags.outputs.date }}
+            - BUILD_FROM=${{ steps.flags.outputs.from }}
+            - BUILD_REF=${{ github.sha }}
+            - BUILD_REPOSITORY=${{ github.repository }}
+            - BUILD_VERSION=${{ needs.information.outputs.version }}
           labels: |
             org.opencontainers.image.source=${{ github.event.repository.html_url }}
             org.opencontainers.image.revision=${{ github.sha }}
