@@ -70,6 +70,33 @@ jobs:
         uses: home-assistant/actions/helpers/info@master
         with:
           path: "./${{ matrix.addon }}"
+      
+      - name: 🚀 Run Home Assistant Add-on Information
+        id: information
+        uses: frenck/action-addon-information@v1
+        with:
+          path: "./${{ matrix.addon }}"
+      
+      - name: ℹ️ Compose build flags
+        id: flags
+        run: |
+          echo "::set-output name=date::$(date +"%Y-%m-%dT%H:%M:%SZ")"
+          from=$(yq --no-colors eval ".build_from.${{ matrix.arch }}" "${{ needs.information.outputs.build }}")
+          echo "::set-output name=from::${from}"
+          if [[ "${{ matrix.arch}}" = "amd64" ]]; then
+            echo "::set-output name=platform::linux/amd64"
+          elif [[ "${{ matrix.arch }}" = "i386" ]]; then
+            echo "::set-output name=platform::linux/386"
+          elif [[ "${{ matrix.arch }}" = "armhf" ]]; then
+            echo "::set-output name=platform::linux/arm/v6"
+          elif [[ "${{ matrix.arch }}" = "armv7" ]]; then
+            echo "::set-output name=platform::linux/arm/v7"
+          elif [[ "${{ matrix.arch }}" = "aarch64" ]]; then
+            echo "::set-output name=platform::linux/arm64/v8"
+          else
+            echo "::error ::Could not determine platform for arch ${{ matrix.arch }}"
+            exit 1
+          fi
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1.2.0
@@ -99,12 +126,19 @@ jobs:
 
       - name: Build ${{ matrix.addon }} add-on
         if: steps.check.outputs.build_arch == 'true'
-        uses: home-assistant/builder@2022.01.0
+        uses: docker/build-push-action@v2.9.0
         with:
-          args: |
-            ${{ env.BUILD_ARGS }} \
-            --${{ matrix.arch }} \
-            --target /data/${{ matrix.addon }} \
-            --image "${{ steps.check.outputs.image }}" \
-            --docker-hub "ghcr.io/${{ github.repository_owner }}" \
-            --addon
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/${{ matrix.arch }}$-addon-${{ matrix.addon }}:${{ steps.check.outputs.image }}
+          platforms: ${{ matrix.arch }}
+          build-args:
+            BUILD_ARCH=${{ matrix.arch }}
+            BUILD_DATE=${{ steps.flags.outputs.date }}
+            BUILD_FROM=${{ steps.flags.outputs.from }}
+            BUILD_REF=${{ github.sha }}
+            BUILD_REPOSITORY=${{ github.repository }}
+            BUILD_VERSION=${{ needs.information.outputs.version }}
+          labels: |
+            org.opencontainers.image.source=${{ github.event.repository.html_url }}
+            org.opencontainers.image.revision=${{ github.sha }}
