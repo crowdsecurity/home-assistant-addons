@@ -123,12 +123,6 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: fetch_crowdsec_release
-        id: fetch_crowdsec_release
-        uses: pozetroninc/github-action-get-latest-release@master
-        with:
-          repository: crowdsecurity/crowdsec
-          excludes: draft,prerelease
       - name: Build ${{ matrix.addon }} add-on
         if: steps.check.outputs.build_arch == 'true'
         uses: docker/build-push-action@v2.9.0
@@ -136,7 +130,7 @@ jobs:
           push: true
           context: ./crowdsec
           tags: |
-            ghcr.io/${{ github.repository_owner }}/${{ matrix.arch }}-addon-${{ matrix.addon }}:${{ steps.fetch_crowdsec_release.outputs.release }}
+            ghcr.io/${{ github.repository_owner }}/${{ matrix.arch }}-addon-${{ matrix.addon }}:${{ steps.informations.outputs.version }}
           platforms: ${{ steps.flags.outputs.platform }}
           build-args: |
             BUILD_ARCH=${{ matrix.arch }}
