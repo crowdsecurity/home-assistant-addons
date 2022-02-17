@@ -2,6 +2,19 @@
 
 bashio::log.info "Running Crowdsec addon"
 
+# Declare variables
+declare acquisition
+declare collections
+declare parsers
+declare scenarios
+declare postoverflows
+declare parsers_to_disable
+declare scenarios_to_disable
+declare console_enroll_key
+declare console_enroll_name
+declare console_enroll_tags
+declare disable_online_api
+
 #  Get all arguments
 acquisition=$(bashio::config 'acquisition')
 collections=$(bashio::config 'collections')
@@ -10,6 +23,9 @@ scenarios=$(bashio::config 'scenarios')
 postoverflows=$(bashio::config 'postoverflows')
 parsers_to_disable=$(bashio::config 'parsers_to_disable')
 scenarios_to_disable=$(bashio::config 'scenarios_to_disable')
+console_enroll_key=$(bashio::config 'console_enroll_key')
+console_enroll_name=$(bashio::config 'console_enroll_name')
+console_enroll_tags=$(bashio::config 'console_enroll_tags')
 disable_online_api=$(bashio::config 'disable_online_api')
 
 # Copy Crowdsec config and data files to make it persistent if it's not already
@@ -108,5 +124,23 @@ if [[ ! -z "${scenarios_to_disable}" ]]; then
     done
     export DISABLE_SCENARIOS="${DISABLE_SCENARIOS}"
 fi
+
+#Enroll instance if console_enroll_key is provided and online API enabled
+if bashio::var.false "${disable_online_api}"; then
+    INSTANCE_TAGS=""
+    if [[ ! -z "${console_enroll_tags}" ]]; then
+        for item in "${console_enroll_tags}"; do
+            INSTANCE_TAGS="${INSTANCE_TAGS}--tags ${item} "
+        done
+    fi
+    INSTANCE_NAME=""
+    if [[ ! -z "${console_enroll_name}" ]]; then
+        INSTANCE_NAME="--name ${console_enroll_name}"
+    fi
+    if [[ ! -z "${console_enroll_key}" ]]; then
+        cscli console enroll ${INSTANCE_NAME} ${INSTANCE_TAGS} ${console_enroll_key}
+    fi
+fi
+
 
 exec bash /docker_start.sh

@@ -42,8 +42,6 @@ COPY --from=hessahely/crowdsec:debian /staging/etc/crowdsec/notifications/splunk
 RUN true
 COPY --from=hessahely/crowdsec:debian /usr/local/lib/crowdsec/plugins /usr/local/lib/crowdsec/plugins
 
-# Copy data for add-on
-COPY run.sh /
-RUN chmod a+x /run.sh
-
-CMD ["./run.sh"]
+# Copy root filesystem
+COPY rootfs /
+ENTRYPOINT ["/init"]
