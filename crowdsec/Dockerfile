@@ -37,6 +37,8 @@ COPY --from=build /tmp/crowdsec/docker/docker_start.sh /docker_start.sh
 COPY --from=build /etc/crowdsec/config.yaml /etc/crowdsec/config.yaml
 #Due to the wizard using cp -n, we have to copy the config files directly from the source as -n does not exist in busybox cp
 #The files are here for reference, as users will need to mount a new version to be actually able to use notifications
+#docker sucks
+RUN true 
 COPY --from=build /tmp/crowdsec/plugins/notifications/email/email.yaml /etc/crowdsec/notifications/email.yaml
 COPY --from=build /tmp/crowdsec/plugins/notifications/http/http.yaml /etc/crowdsec/notifications/http.yaml
 COPY --from=build /tmp/crowdsec/plugins/notifications/slack/slack.yaml /etc/crowdsec/notifications/slack.yaml
