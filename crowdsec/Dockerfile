@@ -33,7 +33,7 @@ COPY --from=build /etc/crowdsec /etc/crowdsec
 COPY --from=build /var/lib/crowdsec /var/lib/crowdsec
 COPY --from=build /usr/local/bin/crowdsec /usr/local/bin/crowdsec
 COPY --from=build /usr/local/bin/cscli /usr/local/bin/cscli
-COPY --from=build /tmp/crowdsec/crowdsec-v*/docker/docker_start.sh /docker_start.sh
+COPY --from=build /tmp/crowdsec/docker/docker_start.sh /docker_start.sh
 COPY --from=build /etc/crowdsec/config.yaml /etc/crowdsec/config.yaml
 #Due to the wizard using cp -n, we have to copy the config files directly from the source as -n does not exist in busybox cp
 #The files are here for reference, as users will need to mount a new version to be actually able to use notifications
