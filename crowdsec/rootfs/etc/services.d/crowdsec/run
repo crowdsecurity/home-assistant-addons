@@ -30,7 +30,7 @@ disable_online_api=$(bashio::config 'disable_online_api')
 
 # Copy Crowdsec config and data files to make it persistent if it's not already
 if [ -d "/config/.storage/crowdsec/config/" ]; then
-    echo "Crowdsec config directory already persistent..."
+    bashio::log.info "Crowdsec config directory already persistent..."
 else
     mkdir -p /config/.storage/crowdsec/config/
     cp -r /etc/crowdsec/* /config/.storage/crowdsec/config/
@@ -46,7 +46,7 @@ else
     sed -i 's#/etc/crowdsec/#/config/.storage/crowdsec/config/#g' /config/.storage/crowdsec/config/config.yaml
 fi
 if [ -d "/config/.storage/crowdsec/data/" ]; then
-    echo "Crowdsec data directory already persistent..."
+    bashio::log.info "Crowdsec data directory already persistent..."
 else
     mkdir -p /config/.storage/crowdsec/data/
     cp -r /var/lib/crowdsec/data/* /config/.storage/crowdsec/data/
@@ -60,14 +60,14 @@ echo "${acquisition}" > /config/.storage/crowdsec/config/acquis.yaml
 
 # Disable or not the Online API
 if bashio::var.true "${disable_online_api}"; then
-    echo "DISABLE ONLINE API..."
+    bashio::log.info "DISABLE ONLINE API..."
     yq eval -i '.api.server.online_client = {"credentials_path": ""}' /config/.storage/crowdsec/config/config.yaml
     #export DISABLE_ONLINE_API="true"
 else
     yq eval -i '.api.server.online_client = {"credentials_path": "/config/.storage/crowdsec/config/online_api_credentials.yaml"}' /config/.storage/crowdsec/config/config.yaml
     if ! bashio::fs.file_exists "/config/.storage/crowdsec/config/online_api_credentials.yaml"; then
         cscli -c /config/.storage/crowdsec/config/config.yaml capi register > /config/.storage/crowdsec/config/online_api_credentials.yaml
-        echo "Registration to online API done"
+        bashio::log.info "Registration to online API done"
     fi
 fi
 
@@ -127,18 +127,25 @@ fi
 
 #Enroll instance if console_enroll_key is provided and online API enabled
 if bashio::var.false "${disable_online_api}"; then
-    INSTANCE_TAGS=""
-    if [[ ! -z "${console_enroll_tags}" ]]; then
-        for item in "${console_enroll_tags}"; do
-            INSTANCE_TAGS="${INSTANCE_TAGS}--tags ${item} "
-        done
-    fi
-    INSTANCE_NAME=""
-    if [[ ! -z "${console_enroll_name}" ]]; then
-        INSTANCE_NAME="--name ${console_enroll_name}"
-    fi
-    if [[ ! -z "${console_enroll_key}" ]]; then
-        cscli console enroll ${INSTANCE_NAME} ${INSTANCE_TAGS} ${console_enroll_key}
+    if [ ! -f "/config/.storage/crowdsec/config/is_enrolled" ]; then
+        INSTANCE_TAGS=""
+        if [[ ! -z "${console_enroll_tags}" ]]; then
+            for item in "${console_enroll_tags}"; do
+                bashio::log.info "${item}"
+                INSTANCE_TAGS="${INSTANCE_TAGS}-t ${item} "
+            done
+        fi
+        INSTANCE_NAME=""
+        if [[ ! -z "${console_enroll_name}" ]]; then
+            INSTANCE_NAME="--name ${console_enroll_name}"
+        fi
+        if [[ ! -z "${console_enroll_key}" ]]; then
+            bashio::log.info "cscli console enroll ${INSTANCE_NAME} ${INSTANCE_TAGS} ${console_enroll_key}"
+            cscli -c /config/.storage/crowdsec/config/config.yaml console enroll ${INSTANCE_NAME} ${INSTANCE_TAGS} ${console_enroll_key}
+            touch /config/.storage/crowdsec/config/is_enrolled
+        fi
+    else
+        bashio::log.info "Already enrolled instance"
     fi
 fi
 
