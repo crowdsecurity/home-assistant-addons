@@ -81,7 +81,7 @@ jobs:
         id: flags
         run: |
           echo "::set-output name=date::$(date +"%Y-%m-%dT%H:%M:%SZ")"
-          from=$(yq --no-colors eval ".build_from.${{ matrix.arch }}" "${{ needs.information.outputs.build }}")
+          from=$(yq --no-colors eval ".build_from.${{ matrix.arch }}" "${{ steps.information.outputs.build }}")
           echo "::set-output name=from::${from}"
           if [[ "${{ matrix.arch}}" = "amd64" ]]; then
             echo "::set-output name=platform::linux/amd64"
