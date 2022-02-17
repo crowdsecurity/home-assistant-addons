@@ -1,4 +1,19 @@
+ARG GOVERSION=1.17
 ARG BUILD_FROM
+
+FROM golang:${GOVERSION}-bullseye AS build
+
+WORKDIR /go/src/crowdsec
+
+# wizard.sh requires GNU coreutils
+RUN apt-get update && apt-get install -y git jq gcc libc-dev make bash gettext binutils-gold coreutils tzdata python3 python3-pip
+RUN git clone https://github.com/crowdsecurity/crowdsec.git --branch $(curl -s https://api.github.com/repos/crowdsecurity/crowdsec/releases/latest | jq -r '.tag_name') --single-branch /tmp/crowdsec
+WORKDIR /tmp/crowdsec
+RUN SYSTEM="docker" make release
+RUN cd crowdsec-v* && ./wizard.sh --docker-mode && cd -
+RUN cscli hub update && cscli collections install crowdsecurity/linux && cscli parsers install crowdsecurity/whitelists
+RUN GO111MODULE=on go get github.com/mikefarah/yq/v4
+
 FROM $BUILD_FROM
 
 ARG BUILD_ARCH
@@ -11,36 +26,24 @@ RUN apt-get install -y -q --install-recommends --no-install-suggests \
     bash \
     tzdata \
     wget \
-    && if [ "${BUILD_ARCH}" = "armhf" ] || [ "${BUILD_ARCH}" = "armv7" ]; then \
-        wget -q -O /usr/bin/yq "https://github.com/mikefarah/yq/releases/download/v4.20.1/yq_linux_arm"; \
-    elif [ "${BUILD_ARCH}" = "aarch64" ]; then \
-        wget -q -O /usr/bin/yq "https://github.com/mikefarah/yq/releases/download/v4.20.1/yq_linux_arm64"; \
-    elif [ "${BUILD_ARCH}" = "i386" ]; then \
-        wget -q -O /usr/bin/yq "https://github.com/mikefarah/yq/releases/download/v4.20.1/yq_linux_386"; \
-    elif [ "${BUILD_ARCH}" = "amd64" ]; then \
-        wget -q -O /usr/bin/yq "https://github.com/mikefarah/yq/releases/download/v4.20.1/yq_linux_amd64"; \
-    else \
-        exit 1; \
-    fi \
-    && chmod +x /usr/bin/yq \
     && mkdir -p /etc/crowdsec \
     && mkdir -p /var/lib/crowdsec
-
-COPY --from=hessahely/crowdsec:debian /staging/etc/crowdsec /etc/crowdsec
-COPY --from=hessahely/crowdsec:debian /staging/var/lib/crowdsec /var/lib/crowdsec
-COPY --from=hessahely/crowdsec:debian /usr/local/bin/crowdsec /usr/local/bin/crowdsec
-COPY --from=hessahely/crowdsec:debian /usr/local/bin/cscli /usr/local/bin/cscli
-COPY --from=hessahely/crowdsec:debian /docker_start.sh /docker_start.sh
-COPY --from=hessahely/crowdsec:debian /staging/etc/crowdsec/config.yaml /etc/crowdsec/config.yaml
+COPY --from=build /go/bin/yq /usr/bin/yq
+COPY --from=build /etc/crowdsec /etc/crowdsec
+COPY --from=build /var/lib/crowdsec /var/lib/crowdsec
+COPY --from=build /usr/local/bin/crowdsec /usr/local/bin/crowdsec
+COPY --from=build /usr/local/bin/cscli /usr/local/bin/cscli
+COPY --from=build /tmp/crowdsec/crowdsec-v*/docker/docker_start.sh /docker_start.sh
+COPY --from=build /etc/crowdsec/config.yaml /etc/crowdsec/config.yaml
 #Due to the wizard using cp -n, we have to copy the config files directly from the source as -n does not exist in busybox cp
 #The files are here for reference, as users will need to mount a new version to be actually able to use notifications
-COPY --from=hessahely/crowdsec:debian /staging/etc/crowdsec/notifications/email.yaml /etc/crowdsec/notifications/email.yaml
-COPY --from=hessahely/crowdsec:debian /staging/etc/crowdsec/notifications/http.yaml /etc/crowdsec/notifications/http.yaml
-COPY --from=hessahely/crowdsec:debian /staging/etc/crowdsec/notifications/slack.yaml /etc/crowdsec/notifications/slack.yaml
-COPY --from=hessahely/crowdsec:debian /staging/etc/crowdsec/notifications/splunk.yaml /etc/crowdsec/notifications/splunk.yaml
+COPY --from=build /tmp/crowdsec/plugins/notifications/email/email.yaml /etc/crowdsec/notifications/email.yaml
+COPY --from=build /tmp/crowdsec/plugins/notifications/http/http.yaml /etc/crowdsec/notifications/http.yaml
+COPY --from=build /tmp/crowdsec/plugins/notifications/slack/slack.yaml /etc/crowdsec/notifications/slack.yaml
+COPY --from=build /tmp/crowdsec/plugins/notifications/splunk/splunk.yaml /etc/crowdsec/notifications/splunk.yaml
 # workaround to avoid having build issue ("failed to create image: failed to get layer")
 RUN true
-COPY --from=hessahely/crowdsec:debian /usr/local/lib/crowdsec/plugins /usr/local/lib/crowdsec/plugins
+COPY --from=build /usr/local/lib/crowdsec/plugins /usr/local/lib/crowdsec/plugins
 
 # Copy data for add-on
 COPY run.sh /
