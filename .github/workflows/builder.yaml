@@ -130,7 +130,7 @@ jobs:
           push: true
           context: ./crowdsec
           tags: |
-            ghcr.io/${{ github.repository_owner }}/${{ matrix.arch }}-addon-${{ matrix.addon }}:${{ steps.informations.outputs.version }}
+            ghcr.io/${{ github.repository_owner }}/${{ matrix.arch }}-addon-${{ matrix.addon }}:${{ steps.information.outputs.version }}
           platforms: ${{ steps.flags.outputs.platform }}
           build-args: |
             BUILD_ARCH=${{ matrix.arch }}
