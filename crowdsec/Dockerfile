@@ -44,4 +44,3 @@ COPY --from=hessahely/crowdsec:debian /usr/local/lib/crowdsec/plugins /usr/local
 
 # Copy root filesystem
 COPY rootfs /
-ENTRYPOINT ["/init"]
