@@ -1,6 +1,7 @@
 ARG GOVERSION=1.17
 ARG BUILD_FROM
 
+
 FROM golang:${GOVERSION}-bullseye AS build
 
 WORKDIR /go/src/crowdsec

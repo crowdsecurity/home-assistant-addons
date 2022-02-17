@@ -2,7 +2,7 @@
 
 bashio::log.info "Running Crowdsec addon"
 
-#  Get all arguments
+# Get all arguments
 acquisition=$(bashio::config 'acquisition')
 collections=$(bashio::config 'collections')
 parsers=$(bashio::config 'parsers')
