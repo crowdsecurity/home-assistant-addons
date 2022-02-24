@@ -1,0 +1,7 @@
+#!/usr/bin/with-contenv bashio
+
+bashio::log.info 'Starting the ttyd daemon...'
+
+# Run the ttyd daemon
+cd /root
+exec ttyd tmux -u new -A -s homeassistant bash -l

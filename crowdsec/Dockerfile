@@ -11,6 +11,7 @@ RUN apt-get install -y -q --install-recommends --no-install-suggests \
     bash \
     tzdata \
     wget \
+    tmux \
     && if [ "${BUILD_ARCH}" = "armhf" ] || [ "${BUILD_ARCH}" = "armv7" ]; then \
         wget -q -O /usr/bin/yq "https://github.com/mikefarah/yq/releases/download/v4.20.1/yq_linux_arm"; \
     elif [ "${BUILD_ARCH}" = "aarch64" ]; then \
@@ -22,9 +23,23 @@ RUN apt-get install -y -q --install-recommends --no-install-suggests \
     else \
         exit 1; \
     fi \
+    && if [ "${BUILD_ARCH}" = "armhf" ]; then \
+        wget -q -O /usr/bin/ttyd "https://github.com/tsl0922/ttyd/releases/download/1.6.3/ttyd.armhf"; \
+    elif [ "${BUILD_ARCH}" = "armv7" ]; then \
+        wget -q -O /usr/bin/ttyd "https://github.com/tsl0922/ttyd/releases/download/1.6.3/ttyd.arm"; \
+    elif [ "${BUILD_ARCH}" = "aarch64" ]; then \
+        wget -q -O /usr/bin/ttyd "https://github.com/tsl0922/ttyd/releases/download/1.6.3/ttyd.aarch64"; \
+    elif [ "${BUILD_ARCH}" = "i386" ] || [ "${BUILD_ARCH}" = "amd64" ]; then \
+        wget -q -O /usr/bin/ttyd "https://github.com/tsl0922/ttyd/releases/download/1.6.3/ttyd.x86_64"; \
+    else \
+        exit 1; \
+    fi \
     && chmod +x /usr/bin/yq \
+    && chmod +x /usr/bin/ttyd \
     && mkdir -p /etc/crowdsec \
     && mkdir -p /var/lib/crowdsec
+#Add alias until env variables will be supported by crowdsec.
+RUN echo 'alias cscli="cscli -c /config/.storage/crowdsec/config/config.yaml"' > /root/.bashrc
 
 COPY --from=hessahely/crowdsec:debian /staging/etc/crowdsec /etc/crowdsec
 COPY --from=hessahely/crowdsec:debian /staging/var/lib/crowdsec /var/lib/crowdsec

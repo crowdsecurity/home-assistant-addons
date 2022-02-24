@@ -4,6 +4,10 @@ url: "https://github.com/crowdsecurity/home-assistant-addons/tree/main/crowdsec"
 version: "1.3.0"
 slug: "crowdsec"
 init: false
+startup: application
+ingress: true
+ingress_port: 7681
+ingress_stream: true
 arch:
   - amd64
   - armhf
@@ -27,9 +31,6 @@ options:
   parsers_to_disable:
     - crowdsecurity/whitelists
   scenarios_to_disable: []
-  console_enroll_key: ""
-  console_enroll_name: ""
-  console_enroll_tags: []
   disable_online_api: false
 environment:
   CONFIG_FILE: "/config/.storage/crowdsec/config/config.yaml"
@@ -47,14 +48,10 @@ schema:
     - str
   scenarios_to_disable:
     - str
-  console_enroll_key: str
-  console_enroll_name: str
-  console_enroll_tags:
-    - str
   disable_online_api: bool
 map:
   - config:rw
 advanced: true
-panel_icon: mdi:console
-panel_title: Crowdsec
+panel_icon: mdi:console-network
+panel_title: Crowdsec Terminal
 journald: true
