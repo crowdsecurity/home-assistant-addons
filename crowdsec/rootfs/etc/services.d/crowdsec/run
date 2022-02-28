@@ -12,7 +12,7 @@ declare parsers_to_disable
 declare scenarios_to_disable
 declare disable_online_api
 
-#  Get all arguments
+# Get all arguments
 acquisition=$(bashio::config 'acquisition')
 collections=$(bashio::config 'collections')
 parsers=$(bashio::config 'parsers')
