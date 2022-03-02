@@ -7,15 +7,6 @@ init: false
 host_network: true
 privileged:
   - NET_ADMIN
-  - SYS_ADMIN
-  - SYS_RAWIO
-  - SYS_TIME
-  - SYS_NICE
-  - SYS_RESOURCE
-  - SYS_PTRACE
-  - SYS_MODULE
-  - DAC_READ_SEARCH
-full_access: true
 arch:
   - amd64
   - armhf
