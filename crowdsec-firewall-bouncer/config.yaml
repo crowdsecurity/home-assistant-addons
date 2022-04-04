@@ -1,12 +1,13 @@
 name: "Crowdsec Firewall Bouncer"
 description: "Crowdsec bouncer written in golang for firewalls"
 url: "https://github.com/crowdsecurity/cs-firewall-bouncer"
-version: "v0.0.22"
+version: "v0.0.23"
 slug: "crowdsec_firewall_bouncer"
 init: false
 host_network: true
 privileged:
   - NET_ADMIN
+  - SYS_MODULE
 arch:
   - amd64
   - armhf

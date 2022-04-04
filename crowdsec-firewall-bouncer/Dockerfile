@@ -9,9 +9,9 @@ RUN apt-get update && \
     mkdir -p /var/run/crowdsec/ && \
     rm -rf /var/lib/apt/lists/*
 
-ADD https://github.com/crowdsecurity/cs-firewall-bouncer/releases/download/v0.0.23-rc3/crowdsec-firewall-bouncer.tgz /crowdsec-firewall-bouncer.tgz
+ADD https://github.com/crowdsecurity/cs-firewall-bouncer/releases/download/v0.0.23/crowdsec-firewall-bouncer.tgz /crowdsec-firewall-bouncer.tgz
 
-RUN tar xzvf /crowdsec-firewall-bouncer.tgz && rm /crowdsec-firewall-bouncer.tgz && mv /crowdsec-firewall-bouncer-v0.0.23-rc3/crowdsec-firewall-bouncer /crowdsec-firewall-bouncer
+RUN tar xzvf /crowdsec-firewall-bouncer.tgz && rm /crowdsec-firewall-bouncer.tgz && mv /crowdsec-firewall-bouncer-v0.0.23/crowdsec-firewall-bouncer /crowdsec-firewall-bouncer
 
 # Copy root filesystem
 COPY rootfs /
