@@ -1,13 +1,21 @@
 name: "Crowdsec Firewall Bouncer"
 description: "Crowdsec bouncer written in golang for firewalls"
 url: "https://github.com/crowdsecurity/cs-firewall-bouncer"
-version: "v0.0.23"
+version: "v0.0.24"
 slug: "crowdsec_firewall_bouncer"
 init: false
 host_network: true
+kernel_modules: true
+full_access: true
 privileged:
   - NET_ADMIN
   - SYS_MODULE
+  - SYS_ADMIN
+  - SYS_RAWIO
+  - SYS_TIME
+  - SYS_NICE
+  - SYS_RESOURCE
+  - SYS_PTRACE
 arch:
   - amd64
   - armhf
@@ -19,10 +27,14 @@ options:
   api_url: ""
   api_key: ""
   update_frequency: "10s"
+  mode: iptables
+  log_level: info
 schema:
   api_url: str
   api_key: str
   update_frequency: str
+  mode: list(iptables|nftables)
+  log_level: list(info|error|debug)
 map:
   - config:rw
 advanced: true
