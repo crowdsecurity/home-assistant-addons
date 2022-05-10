@@ -1,4 +1,4 @@
-mode: {MODE}
+mode: nftables
 pid_dir: /var/run/
 update_frequency: {UPDATE_FREQUENCY}
 daemonize: false
@@ -16,10 +16,6 @@ supported_decisions_types:
 deny_log_prefix: "crowdsec: "
 blacklists_ipv4: crowdsec-blacklists
 blacklists_ipv6: crowdsec6-blacklists
-iptables_chains:
-  - INPUT
-  - FORWARD
-  - DOCKER-USER
 nftables:
   ipv4:
     enabled: true
