@@ -6,7 +6,7 @@
 
 Follow these steps to get the add-on installed on your system:
 
-1. Navigate in your Home Assistant frontend to **Supervisor** -> **Add-on Store**.
+1. Navigate in your Home Assistant frontend to **Settings** ->  **Add-ons** -> **ADD-ON STORE**.
 2. Click on the icon at the top right then **respositories** and add `https://github.com/crowdsecurity/home-assistant-addons`
 3. Find the "Crowdsec" add-on in Crowdsec add-ons repository and click it.
 4. Click on the "INSTALL" button.
@@ -14,6 +14,19 @@ Follow these steps to get the add-on installed on your system:
 ## How to use
 
 The add-on is configured by default to parse and detect bruteforce on home-assistant login interface.
+
+### Crowdsec Terminal
+
+Crowdsec addon expose a web terminal to access the container where Crowdsec is running.
+So you can interact with Crowdsec ([bouncers management](https://docs.crowdsec.net/docs/next/user_guides/bouncers_configuration) for example).
+
+You can add the Crowdsec terminal in sidebar :
+
+1. Go to : http://homeassistant.local:8123/hassio/dashboard and click on Crowdsec addon.
+2. Enable "Show in sidebar" option.
+
+Or you can open the crowdsec terminal (on the addon info page), by clicking on "OPEN WEB UI" button.
+
 
 ## Add-on Configuration
 
