@@ -128,7 +128,7 @@ jobs:
         uses: docker/build-push-action@v2.9.0
         with:
           push: true
-          context: ./crowdsec
+          context: ./${{ matrix.addon }}
           tags: |
             ghcr.io/${{ github.repository_owner }}/${{ matrix.arch }}-addon-${{ matrix.addon }}:${{ steps.information.outputs.version }}
           platforms: ${{ steps.flags.outputs.platform }}
