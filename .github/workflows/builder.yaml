@@ -2,7 +2,7 @@ name: Builder
 
 env:
   BUILD_ARGS: "--test"
-  MONITORED_FILES: "build.yaml config.yaml Dockerfile rootfs/etc/services.d/crowdsec/run rootfs/etc/services.d/ttyd/run"
+  MONITORED_FILES: "build.yaml config.yaml Dockerfile rootfs/etc/services.d/crowdsec/run rootfs/etc/services.d/ttyd/run rootfs/etc/services.d/crowdsec-firewall-bouncer/run"
 
 on:
   push:
