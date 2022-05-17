@@ -1,0 +1,25 @@
+#!/usr/bin/with-contenv bashio
+
+# Declare variables
+declare api_url
+declare api_key
+declare update_frequency
+
+# Get all arguments
+api_url=$(bashio::config 'api_url')
+api_key=$(bashio::config 'api_key')
+update_frequency=$(bashio::config 'update_frequency')
+log_level=$(bashio::config 'log_level')
+
+bashio::log.info "Running Crowdsec addon"
+bashio::log.info "-> Replacing environment variables"
+sed -i "s|{API_URL}|${api_url}|" /etc/crowdsec/bouncers/crowdsec-firewall-bouncer.yaml
+sed -i "s|{API_KEY}|${api_key}|" /etc/crowdsec/bouncers/crowdsec-firewall-bouncer.yaml
+sed -i "s|{UPDATE_FREQUENCY}|${update_frequency}|" /etc/crowdsec/bouncers/crowdsec-firewall-bouncer.yaml
+sed -i "s|{LOG_LEVEL}|${log_level}|" /etc/crowdsec/bouncers/crowdsec-firewall-bouncer.yaml
+
+bashio::log.info "-> Validating config file"
+/crowdsec-firewall-bouncer -c /etc/crowdsec/bouncers/crowdsec-firewall-bouncer.yaml -t
+
+bashio::log.info "-> Starting crowdsec-firewall-bouncer"
+exec /crowdsec-firewall-bouncer -c /etc/crowdsec/bouncers/crowdsec-firewall-bouncer.yaml

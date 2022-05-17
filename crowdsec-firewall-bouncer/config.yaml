@@ -1,0 +1,28 @@
+name: "Crowdsec Firewall Bouncer"
+description: "Crowdsec bouncer written in golang for firewalls"
+url: "https://github.com/crowdsecurity/home-assistant-addons/tree/main/crowdsec-firewall-bouncer/DOCS.md"
+version: "v0.0.23"
+slug: "crowdsec_firewall_bouncer"
+init: false
+host_network: true
+privileged:
+  - NET_ADMIN
+arch:
+  - amd64
+  - armhf
+  - aarch64
+  - armv7
+  - i386
+image: "ghcr.io/crowdsecurity/{arch}-addon-crowdsec"
+options:
+  api_url: ""
+  api_key: ""
+  update_frequency: "10s"
+  log_level: info
+schema:
+  api_url: str
+  api_key: str
+  update_frequency: str
+  log_level: list(info|error|debug)
+map:
+  - config:rw

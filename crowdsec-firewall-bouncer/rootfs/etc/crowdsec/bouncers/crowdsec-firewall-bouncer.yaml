@@ -1,0 +1,29 @@
+mode: nftables
+pid_dir: /var/run/
+update_frequency: {UPDATE_FREQUENCY}
+daemonize: false
+log_mode: stdout
+log_dir: /var/log/
+log_level: {LOG_LEVEL}
+api_url: {API_URL}
+api_key: {API_KEY}
+insecure_skip_verify: false
+disable_ipv6: false
+deny_action: DROP
+deny_log: true
+supported_decisions_types:
+  - ban
+deny_log_prefix: "crowdsec: "
+blacklists_ipv4: crowdsec-blacklists
+blacklists_ipv6: crowdsec6-blacklists
+nftables:
+  ipv4:
+    enabled: true
+    set-only: false
+    table: crowdsec
+    chain: crowdsec-chain
+  ipv6:
+    enabled: true
+    set-only: false
+    table: crowdsec6
+    chain: crowdsec6-chain
