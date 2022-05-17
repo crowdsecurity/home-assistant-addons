@@ -26,4 +26,3 @@ schema:
   log_level: list(info|error|debug)
 map:
   - config:rw
-advanced: true
