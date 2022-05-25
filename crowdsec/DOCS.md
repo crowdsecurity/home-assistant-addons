@@ -33,7 +33,7 @@ Or you can open the crowdsec terminal (on the addon info page), by clicking on "
 The Crowdsec add-on has `journald` [option](https://developers.home-assistant.io/docs/add-ons/configuration#optional-configuration-options) activated to map host system journal to process all the logs (even others add-ons logs).
 With that, you can even parse and detect behaviors on Nginx Proxy Manager or Nginx addons for example.
 
-This add-on has also persistent config and data files that are store at `/config/.storage/crowdsec/`.
+This add-on has also persistent config and data files stored at `/config/.storage/crowdsec/`.
 
 ```yaml
 acquisition: |
