@@ -1,23 +1,23 @@
 # Home Assistant cs-firewall-bouncer Add-on
 
-[CrowdSec](https://github.com/crowdsecurity/cs-firewall-bouncer) - Crowdsec bouncer written in golang for firewalls.
+[CrowdSec](https://github.com/crowdsecurity/cs-firewall-bouncer) - CrowdSec bouncer written in golang for firewalls.
 
 ## Installation
 
 Follow these steps to get the add-on installed on your system:
 
 1. Navigate in your Home Assistant frontend to **Supervisor** -> **Add-on Store**.
-2. Click on the icon at the top right then **respositories** and add `https://github.com/crowdsecurity/home-assistant-addons`
-3. Find the "Crowdsec Firewall Bouncer" add-on in Crowdsec add-ons repository and click it.
+2. Click on the icon at the top right then **Respositories** and add `https://github.com/crowdsecurity/home-assistant-addons`
+3. Find the "CrowdSec Firewall Bouncer" add-on in CrowdSec add-ons repository and click it.
 4. Click on the "INSTALL" button.
 
 ## How to use
 
-!! This addon requires minimum Home assistant OS version >= 8.0.
+!! This addon requires minimum Home Assistant OS version >= 8.0.
 
-As a classic [cs-firewall-bouncer](https://github.com/crowdsecurity/cs-firewall-bouncer), we need to generate a bouncer API key from crowdsec, get the crowdsec addon hostname and fill the addon configuration to communicate with crowdsec.
+As a classic [cs-firewall-bouncer](https://github.com/crowdsecurity/cs-firewall-bouncer), we need to generate a bouncer API key from CrowdSec, get the CrowdSec addon hostname and fill the addon configuration to communicate with CrowdSec.
 
-To generate a bouncer API key, we need to access to the [Crowdsec terminal](https://github.com/crowdsecurity/home-assistant-addons/blob/main/crowdsec/DOCS.md#crowdsec-terminal). Then type the command :
+To generate an bouncer API key, we need to access to the [CrowdSec Terminal](https://github.com/crowdsecurity/home-assistant-addons/blob/main/crowdsec/DOCS.md#crowdsec-terminal). Then type the command:
 
 ```bash
 root@424ccef4-crowdsec:~# cscli bouncers add cs-firewall-bouncer
@@ -29,12 +29,13 @@ Api key for 'cs-firewall-bouncer':
 Please keep this key since you will not be able to retrieve it!
 ```
 
-Here is the bouncer API key you can copy and paste in your addon configuration.
-In the same time, you can see in the terminal the crowdsec addon hostname you can retreive to specify the `api_url`.
+The API Key and API URL need to be shared from the CrowdSec add-on to the Bouncer add-on. These details can be added through the Home Assistant UI `Settings > Add-Ons > CrowdSec Firewall Bouncer > Configuration`, or by editing `/config/.storage/crowdsec/config/local_api_configuration.yaml` directly. 
+
+The API URL should be input as: `http://<crowdsec-terminal-hostname>:8080/`
 
 ## Add-on Configuration
 
-The API URL and key found above should be added to `local_api_configuration.yaml`:
+For the terminal output provided above, `local_api_configuration.yaml` should appear as:
 
 ```yaml
 api_url: "http://424ccef4-crowdsec:8080/"
