@@ -34,6 +34,8 @@ In the same time, you can see in the terminal the crowdsec addon hostname you ca
 
 ## Add-on Configuration
 
+The API URL and key found above should be added to `local_api_configuration.yaml`:
+
 ```yaml
 api_url: "http://424ccef4-crowdsec:8080/"
 api_key: "a44bdb2ea50224f763015d04d2cd2e4b"
