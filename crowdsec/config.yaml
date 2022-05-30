@@ -28,7 +28,6 @@ options:
   scenarios: []
   postoverflows: []
   parsers_to_disable:
-    - crowdsecurity/whitelists
   scenarios_to_disable: []
   disable_online_api: false
 environment:
