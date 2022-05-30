@@ -54,12 +54,14 @@ echo "${acquisition}" > /config/.storage/crowdsec/config/acquis.yaml
 
 # Disable or not the Online API
 if bashio::var.true "${disable_online_api}"; then
-    bashio::log.info "DISABLE ONLINE API..."
+    bashio::log.info "Disabling Online API..."
     yq eval -i '.api.server.online_client = {"credentials_path": ""}' /config/.storage/crowdsec/config/config.yaml
     #export DISABLE_ONLINE_API="true"
 else
     yq eval -i '.api.server.online_client = {"credentials_path": "/config/.storage/crowdsec/config/online_api_credentials.yaml"}' /config/.storage/crowdsec/config/config.yaml
-    if ! bashio::fs.file_exists "/config/.storage/crowdsec/config/online_api_credentials.yaml"; then
+    bashio::log.info "Checking if online API credentials exists..."
+    credentials_exists=$(yq '.url' /config/.storage/crowdsec/config/online_api_credentials.yaml)
+    if [[ $credentials_exists == "null" ]]; then
         cscli -c /config/.storage/crowdsec/config/config.yaml capi register > /config/.storage/crowdsec/config/online_api_credentials.yaml
         bashio::log.info "Registration to online API done"
     fi
