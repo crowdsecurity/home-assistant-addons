@@ -12,6 +12,8 @@ RUN apt-get install -y -q --install-recommends --no-install-suggests \
     tzdata \
     wget \
     tmux \
+    vim \
+    nano \
     && if [ "${BUILD_ARCH}" = "armhf" ] || [ "${BUILD_ARCH}" = "armv7" ]; then \
         wget -q -O /usr/bin/yq "https://github.com/mikefarah/yq/releases/download/v4.20.1/yq_linux_arm"; \
     elif [ "${BUILD_ARCH}" = "aarch64" ]; then \
