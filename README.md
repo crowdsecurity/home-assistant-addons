@@ -14,3 +14,7 @@ You can use this add-on to install Crowdsec, which is an open-source and partici
 [armv7-shield]: https://img.shields.io/badge/armv7-yes-green.svg
 [crowdsec]: https://github.com/crowdsecurity/crowdsec
 [i386-shield]: https://img.shields.io/badge/i386-yes-green.svg
+
+# How to
+
+For the installations process, please refer to [this document](https://github.com/crowdsecurity/home-assistant-addons/blob/main/crowdsec-firewall-bouncer/DOCS.md) 
