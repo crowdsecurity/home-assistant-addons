@@ -4,6 +4,10 @@ bashio::log.info "Running Crowdsec addon"
 
 # Declare variables
 declare acquisition
+declare disable_lapi
+declare remote_lapi_url
+declare agent_username
+declare agent_password
 declare collections
 declare parsers
 declare scenarios
@@ -14,6 +18,10 @@ declare disable_online_api
 
 # Get all arguments
 acquisition=$(bashio::config 'acquisition')
+disable_lapi=$(bashio::config 'disable_lapi')
+remote_lapi_url=$(bashio::config 'remote_lapi_url')
+agent_username=$(bashio::config 'agent_username')
+agent_password=$(bashio::config 'agent_password')
 collections=$(bashio::config 'collections')
 parsers=$(bashio::config 'parsers')
 scenarios=$(bashio::config 'scenarios')
@@ -51,6 +59,19 @@ fi
 echo "${acquisition}" > /config/.storage/crowdsec/config/acquis.yaml
 
 ## Environment variables settings
+
+# Local API settings
+if bashio::var.true "${disable_lapi}"; then
+    bashio::log.info "Disabling Local API and checking credentials..."
+    if [[ -z "${remote_lapi_url}" ]] || [[ -z "${agent_username}" ]] || [[ -z "${agent_password}" ]]; then
+        bashio::log.error "When disabling lapi, you need to provide remote 'remote_lapi_url', 'agent_username' and 'agent_password'"
+        exit 1
+    fi
+    export DISABLE_LOCAL_API=true
+    export LOCAL_API_URL="${remote_lapi_url}"
+    export AGENT_USERNAME="${agent_username}"
+    export AGENT_PASSWORD="${agent_password}"
+fi
 
 # Disable or not the Online API
 if bashio::var.true "${disable_online_api}"; then
