@@ -1,7 +1,7 @@
 name: "Crowdsec"
 description: "CrowdSec - the open-source and participative IPS"
 url: "https://github.com/crowdsecurity/home-assistant-addons/blob/main/crowdsec/DOCS.md"
-version: "1.3.4-ha2"
+version: "1.4.1-ha1"
 slug: "crowdsec"
 init: false
 ingress: true
@@ -22,6 +22,10 @@ options:
       - "--directory=/var/log/journal/"
     labels:
       type: syslog
+  disable_lapi: false
+  remote_lapi_url: ""
+  agent_username: ""
+  agent_password: ""
   collections:
     - crowdsecurity/home-assistant
   parsers: []
@@ -34,6 +38,10 @@ environment:
   CONFIG_FILE: "/config/.storage/crowdsec/config/config.yaml"
 schema:
   acquisition: str
+  disable_lapi: bool
+  remote_lapi_url: str
+  agent_username: str
+  agent_password: str
   collections:
     - str
   parsers:

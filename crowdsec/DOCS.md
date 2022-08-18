@@ -43,6 +43,10 @@ acquisition: |
     - "--directory=/var/log/journal/"
   labels:
     type: syslog
+disable_lapi: false
+remote_lapi_url: ""
+agent_username: ""
+agent_password: ""
 collections:
   - crowdsecurity/home-assistant
 parsers: []
@@ -58,6 +62,22 @@ disable_online_api: false
 
 Acquisition config file for crowdsec ([see documentation](https://docs.crowdsec.net/docs/next/concepts/#acquisition)).
 The default acquisition allow Crowdsec add-on to process all logs from the host system journal.
+
+### Option: `disable_lapi` (optional)
+
+Disable local API (if you want only the agent).
+
+### Option: `remote_lapi_url` (optional)
+
+When `disable_lapi` is set to `true`, you need to specify the remote local API URL.
+
+### Option: `agent_username` (optional)
+
+When `disable_lapi` is set to `true`, you need to specify the agent username to connect to the remote local API.
+
+### Option: `agent_password` (optional)
+
+When `disable_lapi` is set to `true`, you need to specify the agent password to connect to the remote local API.
 
 ### Option: `collections` (optional)
 
