@@ -69,15 +69,15 @@ Disable local API (if you want only the agent).
 
 ### Option: `remote_lapi_url` (optional)
 
-When `disable_lapi` setted to `true`, you need to specify the remote local API URL.
+When `disable_lapi` is set to `true`, you need to specify the remote local API URL.
 
 ### Option: `agent_username` (optional)
 
-When `disable_lapi` setted to `true`, you need to specify the agent username to connect to the remote local API.
+When `disable_lapi` is set to `true`, you need to specify the agent username to connect to the remote local API.
 
 ### Option: `agent_password` (optional)
 
-When `disable_lapi` setted to `true`, you need to specify the agent password to connect to the remote local API.
+When `disable_lapi` is set to `true`, you need to specify the agent password to connect to the remote local API.
 
 ### Option: `collections` (optional)
 
