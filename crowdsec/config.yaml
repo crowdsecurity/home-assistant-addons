@@ -7,14 +7,13 @@ init: false
 ingress: true
 ingress_port: 7681
 ingress_stream: true
-host_network: true
 arch:
   - amd64
   - armhf
   - aarch64
   - armv7
   - i386
-#image: "ghcr.io/crowdsecurity/{arch}-addon-crowdsec"
+image: "ghcr.io/crowdsecurity/{arch}-addon-crowdsec"
 options:
   acquisition: |
     ---
