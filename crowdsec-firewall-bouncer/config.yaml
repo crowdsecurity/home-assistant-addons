@@ -13,8 +13,6 @@ arch:
   - aarch64
   - armv7
   - i386
-ports:
-  8080/tcp: null
 image: "ghcr.io/crowdsecurity/{arch}-addon-crowdsec-firewall-bouncer"
 options:
   api_url: "http://424ccef4-crowdsec:8080/"
