@@ -15,6 +15,7 @@ arch:
   - i386
 ports:
   8080/tcp: null
+image: "ghcr.io/crowdsecurity/{arch}-addon-crowdsec"
 options:
   acquisition: |
     ---
