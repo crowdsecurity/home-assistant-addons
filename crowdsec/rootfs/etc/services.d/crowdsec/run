@@ -83,10 +83,10 @@ else
     yq eval -i '.api.server.online_client = {"credentials_path": "/config/.storage/crowdsec/config/online_api_credentials.yaml"}' /config/.storage/crowdsec/config/config.yaml
     bashio::log.info "Checking if online API credentials exists..."
     credentials_exists=$(yq '.url' /config/.storage/crowdsec/config/online_api_credentials.yaml)
-    #if [[ $credentials_exists == "null" ]]; then
-    #    cscli -c /config/.storage/crowdsec/config/config.yaml capi register > /config/.storage/crowdsec/config/online_api_credentials.yaml
-    #    bashio::log.info "Registration to online API done"
-    #fi
+    if [[ $credentials_exists == "null" ]]; then
+        cscli -c /config/.storage/crowdsec/config/config.yaml capi register > /config/.storage/crowdsec/config/online_api_credentials.yaml
+        bashio::log.info "Registration to online API done"
+    fi
 fi
 
 # Set collections to install env var
