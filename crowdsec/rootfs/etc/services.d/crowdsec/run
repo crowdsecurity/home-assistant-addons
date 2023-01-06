@@ -89,9 +89,6 @@ else
     #fi
 fi
 
-echo "Current config file:"
-cat /config/.storage/crowdsec/config/config.yaml
-
 # Set collections to install env var
 COLLECTIONS=""
 if [[ ! -z "${collections}" ]]; then
