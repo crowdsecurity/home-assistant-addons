@@ -46,8 +46,8 @@ jobs:
           changed=$(echo ${changed_addons[@]} | rev | cut -c 2- | rev)
           if [[ -n ${changed} ]]; then
             echo "Changed add-ons: $changed";
-            echo "::set-output name=changed::true";
-            echo "::set-output name=addons::[$changed]";
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "addons=[$changed]" >> $GITHUB_OUTPUT
           else
             echo "No add-on had any monitored files changed (${{ env.MONITORED_FILES }})";
           fi
@@ -80,19 +80,19 @@ jobs:
       - name: ℹ️ Compose build flags
         id: flags
         run: |
-          echo "::set-output name=date::$(date +"%Y-%m-%dT%H:%M:%SZ")"
+          echo "date=$(date +"%Y-%m-%dT%H:%M:%SZ")" >> $GITHUB_OUTPUT
           from=$(yq --no-colors eval ".build_from.${{ matrix.arch }}" "${{ steps.information.outputs.build }}")
-          echo "::set-output name=from::${from}"
+          echo "from=${from}" >> $GITHUB_OUTPUT
           if [[ "${{ matrix.arch}}" = "amd64" ]]; then
-            echo "::set-output name=platform::linux/amd64"
+            echo "platform=linux/amd64" >> $GITHUB_OUTPUT
           elif [[ "${{ matrix.arch }}" = "i386" ]]; then
-            echo "::set-output name=platform::linux/386"
+            echo "platform=linux/386" >> $GITHUB_OUTPUT
           elif [[ "${{ matrix.arch }}" = "armhf" ]]; then
-            echo "::set-output name=platform::linux/arm/v6"
+            echo "platform=linux/arm/v6" >> $GITHUB_OUTPUT
           elif [[ "${{ matrix.arch }}" = "armv7" ]]; then
-            echo "::set-output name=platform::linux/arm/v7"
+            echo "platform=linux/arm/v7" >> $GITHUB_OUTPUT
           elif [[ "${{ matrix.arch }}" = "aarch64" ]]; then
-            echo "::set-output name=platform::linux/arm64/v8"
+            echo "platform=linux/arm64/v8" >> $ GITHUB_OUTPUT
           else
             echo "::error ::Could not determine platform for arch ${{ matrix.arch }}"
             exit 1
@@ -107,14 +107,14 @@ jobs:
         id: check
         run: |
           if [[ "${{ steps.info.outputs.architectures }}" =~ ${{ matrix.arch }} ]]; then
-             echo "::set-output name=build_arch::true";
-             echo "::set-output name=image::$(echo ${{ steps.info.outputs.image }} | cut -d'/' -f3)";
+             echo "build_arch=true" >> $GITHUB_OUTPUT
+             echo "image=$(echo ${{ steps.info.outputs.image }} | cut -d'/' -f3)" >> $GITHUB_OUTPUT
              if [[ -z "${{ github.head_ref }}" ]] && [[ "${{ github.event_name }}" == "push" ]]; then
                  echo "BUILD_ARGS=" >> $GITHUB_ENV;
              fi
            else
              echo "${{ matrix.arch }} is not a valid arch for ${{ matrix.addon }}, skipping build";
-             echo "::set-output name=build_arch::false";
+             echo "build_arch=false" >> $GITHUB_OUTPUT
           fi
       - name: Login to GitHub Container Registry
         if: env.BUILD_ARGS != '--test'
