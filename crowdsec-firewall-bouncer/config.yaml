@@ -1,7 +1,7 @@
 name: "Crowdsec Firewall Bouncer"
 description: "Crowdsec bouncer written in golang for firewalls"
 url: "https://github.com/crowdsecurity/home-assistant-addons/tree/main/crowdsec-firewall-bouncer/DOCS.md"
-version: "v0.0.25"
+version: "v0.0.25-ha1"
 slug: crowdsec-firewall-bouncer
 init: false
 host_network: true
@@ -19,10 +19,14 @@ options:
   api_key: ""
   update_frequency: "10s"
   log_level: info
+  nftables_hooks:
+    - input
 schema:
   api_url: str
   api_key: str
   update_frequency: str
+  nftables_hooks:
+    - str?
   log_level: list(info|error|debug)
 map:
   - config:rw
