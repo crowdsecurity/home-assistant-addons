@@ -27,3 +27,5 @@ nftables:
     set-only: false
     table: crowdsec6
     chain: crowdsec6-chain
+nftables_hooks: {NFTABLES_HOOKS}
+

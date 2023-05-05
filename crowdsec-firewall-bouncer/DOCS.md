@@ -48,13 +48,25 @@ log_level: info
 
 Set local API url.
 
-### Option: `api_key` (optional)
+### Option: `api_key` (required)
 
 Set local API key.
 
 ### Option: `update_frequency` (optional)
 
 Controls how often the bouncer is going to query the local API.
+
+### Option: `nftables_hooks` (optional)
+
+Controls the nftables hooks to use to configure multiple chains. 
+Can be:
+
+* `prerouting`
+* `input` (default)
+* `forward`
+* `output`
+* `postrouting`
+* `ingress`
 
 ### Option: `log_level` (optional)
 
