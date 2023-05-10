@@ -20,7 +20,7 @@ RUN if [ "${BUILD_ARCH}" = "armhf" ]; then \
         wget -q -O /crowdsec-firewall-bouncer.tgz "https://github.com/crowdsecurity/cs-firewall-bouncer/releases/download/${BIN_VERSION}/crowdsec-firewall-bouncer-linux-${BUILD_ARCH}.tgz"; \
     fi
 
-RUN tar xzvf /crowdsec-firewall-bouncer.tgz && rm /crowdsec-firewall-bouncer.tgz && mv /crowdsec-firewall-bouncer-$BIN_VERSION-rc6/crowdsec-firewall-bouncer /crowdsec-firewall-bouncer
+RUN tar xzvf /crowdsec-firewall-bouncer.tgz && rm /crowdsec-firewall-bouncer.tgz && mv /crowdsec-firewall-bouncer-$BIN_VERSION/crowdsec-firewall-bouncer /crowdsec-firewall-bouncer
 
 # Copy root filesystem
 COPY rootfs /
