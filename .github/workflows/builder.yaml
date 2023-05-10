@@ -92,7 +92,7 @@ jobs:
           elif [[ "${{ matrix.arch }}" = "armv7" ]]; then
             echo "platform=linux/arm/v7" >> $GITHUB_OUTPUT
           elif [[ "${{ matrix.arch }}" = "aarch64" ]]; then
-            echo "platform=linux/arm64/v8" >> $ GITHUB_OUTPUT
+            echo "platform=linux/arm64/v8" >> $GITHUB_OUTPUT
           else
             echo "::error ::Could not determine platform for arch ${{ matrix.arch }}"
             exit 1
