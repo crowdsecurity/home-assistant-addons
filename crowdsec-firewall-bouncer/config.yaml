@@ -1,7 +1,7 @@
 name: "Crowdsec Firewall Bouncer"
 description: "Crowdsec bouncer written in golang for firewalls"
 url: "https://github.com/crowdsecurity/home-assistant-addons/tree/main/crowdsec-firewall-bouncer/DOCS.md"
-version: "v0.0.26-ha2"
+version: "v0.0.28"
 slug: crowdsec-firewall-bouncer
 init: false
 host_network: true
