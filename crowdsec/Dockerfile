@@ -2,8 +2,8 @@ ARG BUILD_FROM
 FROM $BUILD_FROM
 
 ARG BUILD_ARCH
-ENV BUILD_IMG=crowdsecurity/crowdsec
-ENV BUILD_VER=${BUILD_IMG}:v1.6.1-2
+ARG BUILD_IMG=crowdsecurity/crowdsec
+ARG BUILD_VER=${BUILD_IMG}:v1.6.1-2
 
 RUN apt-get update
 RUN apt-get install -y -q --install-recommends --no-install-suggests \
