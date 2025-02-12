@@ -58,7 +58,7 @@ jobs:
     name: Build ${{ matrix.arch }} ${{ matrix.addon }} add-on
     strategy:
       matrix:
-        addon: ${{ fromJson(needs.init.outputs.changed_addons) }}
+        addon:  ["crowdsec"]
         arch: ["aarch64", "amd64", "i386", "armhf", "armv7"]
 
     steps:
