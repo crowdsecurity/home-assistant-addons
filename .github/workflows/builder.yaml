@@ -54,7 +54,7 @@ jobs:
           fi
   build:
     needs: init
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     name: Build ${{ matrix.arch }} ${{ matrix.addon }} add-on
     strategy:
       matrix:
