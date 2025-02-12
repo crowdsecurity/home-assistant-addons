@@ -58,6 +58,14 @@ COPY --from=crowdsecurity/crowdsec:v1.6.5 /staging/etc/crowdsec/notifications/em
 COPY --from=crowdsecurity/crowdsec:v1.6.5 /staging/etc/crowdsec/notifications/http.yaml /etc/crowdsec/notifications/http.yaml
 COPY --from=crowdsecurity/crowdsec:v1.6.5 /staging/etc/crowdsec/notifications/slack.yaml /etc/crowdsec/notifications/slack.yaml
 COPY --from=crowdsecurity/crowdsec:v1.6.5 /staging/etc/crowdsec/notifications/splunk.yaml /etc/crowdsec/notifications/splunk.yaml
+# This is an ugly workaround for an issue reported on discord
+# The container fails to start with the error "ln: failed to create symbolic link '/var/lib/crowdsec/data/*': File exists"
+# In the HA container, /staging/var/lib/crowdsec/data/ does not exist, and the crowdsec docker_start.sh script loops
+# over its content to create symlinks: `for target in "/staging/var/lib/crowdsec/data"/*; do`
+# But if the directory does not exist (or is empty), we will  attempt to create a symlink with the name "*"
+# And this fails with the error above (it's not clear *why* the error happens, as we shouldn't have a file named "*" here in the first place....)
+# In the meantime, we create the directory and a fake `crowdsec.db` file (as it's explicitly ignored in the loop) to avoid the issue
+RUN mkdir -p /staging/var/lib/crowdsec/data/ && touch /staging/var/lib/crowdsec/data/crowdsec.db
 # workaround to avoid having build issue ("failed to create image: failed to get layer")
 RUN true
 COPY --from=crowdsecurity/crowdsec:v1.6.5 /usr/local/lib/crowdsec/plugins /usr/local/lib/crowdsec/plugins
