@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.6.6
+
+- Bump crowdsec version to 1.6.6
+
 ## 1.6.5-1
 
 - Workaround a potential start failure when running with LAPI
