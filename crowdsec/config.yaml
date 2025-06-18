@@ -1,7 +1,7 @@
 name: "Crowdsec"
 description: "CrowdSec - the open-source and participative IPS"
 url: "https://github.com/crowdsecurity/home-assistant-addons/blob/main/crowdsec/DOCS.md"
-version: "1.6.8"
+version: "1.6.9"
 slug: "crowdsec"
 init: false
 ingress: true
