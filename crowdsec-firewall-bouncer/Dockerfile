@@ -2,7 +2,7 @@ ARG BUILD_FROM
 FROM $BUILD_FROM
 
 ARG BUILD_ARCH
-ARG BIN_VERSION=v0.0.33
+ARG BIN_VERSION=v0.0.34
 
 RUN apt-get update && \
     apt-get upgrade -y && \
