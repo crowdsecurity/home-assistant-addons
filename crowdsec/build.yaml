@@ -1,9 +1,9 @@
 build_from:
-  amd64: "ghcr.io/home-assistant/amd64-base-debian:bullseye"
-  armhf: "ghcr.io/home-assistant/armhf-base-debian:bullseye"
-  aarch64: "ghcr.io/home-assistant/aarch64-base-debian:bullseye"
-  armv7: "ghcr.io/home-assistant/armv7-base-debian:bullseye"
-  i386: "ghcr.io/home-assistant/i386-base-debian:bullseye"
+  amd64: "ghcr.io/home-assistant/amd64-base-debian:bookworm"
+  armhf: "ghcr.io/home-assistant/armhf-base-debian:bookworm"
+  aarch64: "ghcr.io/home-assistant/aarch64-base-debian:bookworm"
+  armv7: "ghcr.io/home-assistant/armv7-base-debian:bookworm"
+  i386: "ghcr.io/home-assistant/i386-base-debian:bookworm"
 labels:
   org.opencontainers.image.title: "Home Assistant Add-on: Crowdsec add-on"
   org.opencontainers.image.description: "CrowdSec - the open-source and participative IPS."

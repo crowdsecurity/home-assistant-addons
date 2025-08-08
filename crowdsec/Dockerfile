@@ -41,8 +41,8 @@ RUN apt-get install -y -q --install-recommends --no-install-suggests \
     && chmod +x /usr/bin/ttyd \
     && mkdir -p /etc/crowdsec \
     && mkdir -p /var/lib/crowdsec
-RUN echo "deb http://deb.debian.org/debian bullseye-backports main" >> /etc/apt/sources.list \
-    && apt-get update && apt-get install -t bullseye-backports -y libsystemd0
+RUN echo "deb http://deb.debian.org/debian bookworm-backports main" >> /etc/apt/sources.list \
+    && apt-get update && apt-get install -t bookworm-backports -y libsystemd0
 #Add alias until env variables will be supported by crowdsec.
 RUN echo 'alias cscli="cscli -c /config/.storage/crowdsec/config/config.yaml"' > /root/.bashrc
 
