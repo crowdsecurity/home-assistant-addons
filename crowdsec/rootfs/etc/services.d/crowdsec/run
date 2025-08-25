@@ -143,4 +143,8 @@ if [[ ! -z "${scenarios_to_disable}" ]]; then
     export DISABLE_SCENARIOS="${DISABLE_SCENARIOS}"
 fi
 
+# In Home Assistant, the user does not have control over the volumes (it's managed by the add-on)
+# And crowdsec is using not default paths, which breaks the check done in the entrypoint
+export CROWDSEC_BYPASS_DB_VOLUME_CHECK=true
+
 exec bash /docker_start.sh
