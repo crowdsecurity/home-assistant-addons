@@ -4,6 +4,11 @@
 declare api_url
 declare api_key
 declare update_frequency
+declare tls_enabled
+declare tls_ca_cert
+declare tls_client_cert
+declare tls_client_key
+declare tls_skip_verify
 
 # Get all arguments
 api_url=$(bashio::config 'api_url')
@@ -15,6 +20,11 @@ nftables_hooks="\n"
 for item in ${nftables_hooks_tmp}; do
   nftables_hooks+="  - ${item}\n"
 done
+tls_enabled=$(bashio::config 'tls_enabled')
+tls_ca_cert=$(bashio::config 'tls_ca_cert')
+tls_client_cert=$(bashio::config 'tls_client_cert')
+tls_client_key=$(bashio::config 'tls_client_key')
+tls_skip_verify=$(bashio::config 'tls_skip_verify')
 
 bashio::log.info "Running Crowdsec addon"
 bashio::log.info "-> Replacing environment variables"
@@ -23,6 +33,72 @@ sed -i "s|{API_KEY}|${api_key}|" /etc/crowdsec-firewall-bouncer/config.yaml
 sed -i "s|{UPDATE_FREQUENCY}|${update_frequency}|" /etc/crowdsec-firewall-bouncer/config.yaml
 sed -i "s|{LOG_LEVEL}|${log_level}|" /etc/crowdsec-firewall-bouncer/config.yaml
 sed -i "s|{NFTABLES_HOOKS}|${nftables_hooks}|" /etc/crowdsec-firewall-bouncer/config.yaml
+
+# Handle TLS configuration
+if bashio::var.true "${tls_enabled}"; then
+    bashio::log.info "-> Configuring TLS authentication"
+
+    # Validate CA certificate
+    if [[ -n "${tls_ca_cert}" ]]; then
+        if [[ "${tls_ca_cert}" == *".."* ]]; then
+            bashio::log.error "Invalid CA certificate path: path traversal not allowed"
+            exit 1
+        fi
+        if [[ ! -f "/ssl/${tls_ca_cert}" ]]; then
+            bashio::log.error "CA certificate not found: /ssl/${tls_ca_cert}"
+            exit 1
+        fi
+        bashio::log.info "   CA certificate: /ssl/${tls_ca_cert}"
+    fi
+
+    # Validate client certificate
+    if [[ -n "${tls_client_cert}" ]]; then
+        if [[ "${tls_client_cert}" == *".."* ]]; then
+            bashio::log.error "Invalid client certificate path: path traversal not allowed"
+            exit 1
+        fi
+        if [[ ! -f "/ssl/${tls_client_cert}" ]]; then
+            bashio::log.error "Client certificate not found: /ssl/${tls_client_cert}"
+            exit 1
+        fi
+        bashio::log.info "   Client certificate: /ssl/${tls_client_cert}"
+    fi
+
+    # Validate client key
+    if [[ -n "${tls_client_key}" ]]; then
+        if [[ "${tls_client_key}" == *".."* ]]; then
+            bashio::log.error "Invalid client key path: path traversal not allowed"
+            exit 1
+        fi
+        if [[ ! -f "/ssl/${tls_client_key}" ]]; then
+            bashio::log.error "Client key not found: /ssl/${tls_client_key}"
+            exit 1
+        fi
+        bashio::log.info "   Client key: /ssl/${tls_client_key}"
+    fi
+
+    # Write TLS config to temp file (root level, not nested under tls:)
+    {
+        [[ -n "${tls_ca_cert}" ]] && echo "ca_cert_path: /ssl/${tls_ca_cert}"
+        [[ -n "${tls_client_cert}" ]] && echo "cert_path: /ssl/${tls_client_cert}"
+        [[ -n "${tls_client_key}" ]] && echo "key_path: /ssl/${tls_client_key}"
+    } > /tmp/tls_config.yaml
+
+    # Insert TLS config and remove placeholder
+    sed -i -e '/{TLS_CONFIG}/r /tmp/tls_config.yaml' -e '/{TLS_CONFIG}/d' \
+        /etc/crowdsec-firewall-bouncer/config.yaml
+    rm -f /tmp/tls_config.yaml
+else
+    sed -i "s|{TLS_CONFIG}||" /etc/crowdsec-firewall-bouncer/config.yaml
+fi
+
+# Handle TLS skip verify
+if bashio::var.true "${tls_skip_verify}"; then
+    bashio::log.warning "TLS certificate verification disabled - this is insecure!"
+    sed -i "s|{TLS_SKIP_VERIFY}|true|" /etc/crowdsec-firewall-bouncer/config.yaml
+else
+    sed -i "s|{TLS_SKIP_VERIFY}|false|" /etc/crowdsec-firewall-bouncer/config.yaml
+fi
 
 bashio::log.info "-> Validating config file"
 /crowdsec-firewall-bouncer -c /etc/crowdsec-firewall-bouncer/config.yaml -t

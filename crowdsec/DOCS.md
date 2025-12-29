@@ -39,7 +39,7 @@ This add-on has also persistent config and data files that are store at `/config
 acquisition: |
   ---
   source: journalctl
-  journalctl_filter: 
+  journalctl_filter:
     - "--directory=/var/log/journal/"
   labels:
     type: syslog
@@ -56,6 +56,11 @@ parsers_to_disable:
   - crowdsecurity/whitelists
 scenarios_to_disable: []
 disable_online_api: false
+tls_enabled: false
+tls_ca_cert: ""
+tls_client_cert: ""
+tls_client_key: ""
+tls_skip_verify: false
 ```
 
 ### Option: `acquisition` (required)
@@ -106,6 +111,54 @@ All the scenarios you want to remove before running crowdsec.
 ### Option: `disable_online_api` (optional)
 
 Disable Online API registration for signal sharing.
+
+### Option: `tls_enabled` (optional)
+
+Enable TLS client authentication for connecting to a remote LAPI. When enabled, certificate files must be placed in Home Assistant's `/ssl/` directory.
+
+### Option: `tls_ca_cert` (optional)
+
+Filename of the CA certificate in `/ssl/` directory. Used to verify the remote LAPI server certificate.
+
+### Option: `tls_client_cert` (optional)
+
+Filename of the client certificate in `/ssl/` directory. Used for mTLS authentication with the remote LAPI.
+
+### Option: `tls_client_key` (optional)
+
+Filename of the client private key in `/ssl/` directory. Must match the client certificate.
+
+### Option: `tls_skip_verify` (optional)
+
+Skip TLS certificate verification. **Warning: This is insecure and should only be used for testing.**
+
+## TLS Authentication
+
+To connect to a remote LAPI using TLS/mTLS authentication instead of password-based auth:
+
+### 1. Place certificates in Home Assistant's SSL directory
+
+Copy your certificates to `/ssl/` (accessible via Home Assistant's file editor or SSH):
+- `ca.crt` - CA certificate that signed the LAPI server certificate
+- `agent.crt` - Client certificate for this agent
+- `agent.key` - Client private key
+
+### 2. Configure the add-on
+
+```yaml
+disable_lapi: true
+remote_lapi_url: "https://your-lapi-server:8080"
+tls_enabled: true
+tls_ca_cert: "ca.crt"
+tls_client_cert: "agent.crt"
+tls_client_key: "agent.key"
+```
+
+When using TLS authentication, `agent_username` and `agent_password` are not required.
+
+### 3. Generate certificates (if needed)
+
+On your CrowdSec LAPI server, you can generate certificates using your preferred CA. See the [CrowdSec TLS documentation](https://doc.crowdsec.net/docs/local_api/tls_auth) for details on configuring TLS authentication.
 
 ## Support
 

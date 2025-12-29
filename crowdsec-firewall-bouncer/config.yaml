@@ -17,16 +17,27 @@ image: "ghcr.io/crowdsecurity/{arch}-addon-crowdsec-firewall-bouncer"
 options:
   api_url: "http://424ccef4-crowdsec:8080/"
   api_key: ""
+  tls_enabled: false
+  tls_ca_cert: ""
+  tls_client_cert: ""
+  tls_client_key: ""
+  tls_skip_verify: false
   update_frequency: "10s"
   log_level: info
   nftables_hooks:
     - input
 schema:
   api_url: str
-  api_key: str
+  api_key: str?
+  tls_enabled: bool?
+  tls_ca_cert: str?
+  tls_client_cert: str?
+  tls_client_key: str?
+  tls_skip_verify: bool?
   update_frequency: str
-  nftables_hooks: 
+  nftables_hooks:
     - "match(^(prerouting|input|forward|output|postrouting|ingress)$)"
   log_level: list(info|error|debug)
 map:
   - config:rw
+  - ssl:ro

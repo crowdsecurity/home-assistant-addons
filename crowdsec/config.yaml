@@ -22,7 +22,7 @@ options:
   acquisition: |
     ---
     source: journalctl
-    journalctl_filter: 
+    journalctl_filter:
       - "--directory=/var/log/journal/"
     labels:
       type: syslog
@@ -30,6 +30,11 @@ options:
   remote_lapi_url: ""
   agent_username: ""
   agent_password: ""
+  tls_enabled: false
+  tls_ca_cert: ""
+  tls_client_cert: ""
+  tls_client_key: ""
+  tls_skip_verify: false
   collections:
     - crowdsecurity/home-assistant
   parsers: []
@@ -44,8 +49,13 @@ schema:
   acquisition: str
   disable_lapi: bool
   remote_lapi_url: str
-  agent_username: str
-  agent_password: str
+  agent_username: str?
+  agent_password: str?
+  tls_enabled: bool?
+  tls_ca_cert: str?
+  tls_client_cert: str?
+  tls_client_key: str?
+  tls_skip_verify: bool?
   collections:
     - str
   parsers:
@@ -61,6 +71,7 @@ schema:
   disable_online_api: bool
 map:
   - config:rw
+  - ssl:ro
 panel_icon: mdi:console-network
 panel_title: Crowdsec Terminal
 journald: true

@@ -15,6 +15,11 @@ declare postoverflows
 declare parsers_to_disable
 declare scenarios_to_disable
 declare disable_online_api
+declare tls_enabled
+declare tls_ca_cert
+declare tls_client_cert
+declare tls_client_key
+declare tls_skip_verify
 
 # Get all arguments
 acquisition=$(bashio::config 'acquisition')
@@ -29,6 +34,11 @@ postoverflows=$(bashio::config 'postoverflows')
 parsers_to_disable=$(bashio::config 'parsers_to_disable')
 scenarios_to_disable=$(bashio::config 'scenarios_to_disable')
 disable_online_api=$(bashio::config 'disable_online_api')
+tls_enabled=$(bashio::config 'tls_enabled')
+tls_ca_cert=$(bashio::config 'tls_ca_cert')
+tls_client_cert=$(bashio::config 'tls_client_cert')
+tls_client_key=$(bashio::config 'tls_client_key')
+tls_skip_verify=$(bashio::config 'tls_skip_verify')
 
 # Copy Crowdsec config and data files to make it persistent if it's not already
 if [ -d "/config/.storage/crowdsec/config/" ]; then
@@ -63,15 +73,81 @@ echo "${acquisition}" > /config/.storage/crowdsec/config/acquis.yaml
 
 # Local API settings
 if bashio::var.true "${disable_lapi}"; then
-    bashio::log.info "Disabling Local API and checking credentials..."
-    if [[ -z "${remote_lapi_url}" ]] || [[ -z "${agent_username}" ]] || [[ -z "${agent_password}" ]]; then
-        bashio::log.error "When disabling lapi, you need to provide remote 'remote_lapi_url', 'agent_username' and 'agent_password'"
+    bashio::log.info "Disabling Local API..."
+
+    if [[ -z "${remote_lapi_url}" ]]; then
+        bashio::log.error "When disabling lapi, you need to provide 'remote_lapi_url'"
         exit 1
     fi
+
     export DISABLE_LOCAL_API=true
-    export LOCAL_API_URL="${remote_lapi_url}"
-    export AGENT_USERNAME="${agent_username}"
-    export AGENT_PASSWORD="${agent_password}"
+
+    # Check if using TLS authentication
+    if bashio::var.true "${tls_enabled}"; then
+        bashio::log.info "Using TLS authentication for remote LAPI"
+
+        # Tell docker entrypoint to enable TLS mode
+        export USE_TLS=true
+        export LOCAL_API_URL="${remote_lapi_url}"
+
+        # Validate and set CA certificate
+        if [[ -n "${tls_ca_cert}" ]]; then
+            if [[ "${tls_ca_cert}" == *".."* ]]; then
+                bashio::log.error "Invalid CA certificate path: path traversal not allowed"
+                exit 1
+            fi
+            if [[ ! -f "/ssl/${tls_ca_cert}" ]]; then
+                bashio::log.error "CA certificate not found: /ssl/${tls_ca_cert}"
+                exit 1
+            fi
+            export CACERT_FILE="/ssl/${tls_ca_cert}"
+            bashio::log.info "  CA certificate: /ssl/${tls_ca_cert}"
+        fi
+
+        # Validate and set client certificate
+        if [[ -n "${tls_client_cert}" ]]; then
+            if [[ "${tls_client_cert}" == *".."* ]]; then
+                bashio::log.error "Invalid client certificate path: path traversal not allowed"
+                exit 1
+            fi
+            if [[ ! -f "/ssl/${tls_client_cert}" ]]; then
+                bashio::log.error "Client certificate not found: /ssl/${tls_client_cert}"
+                exit 1
+            fi
+            export CLIENT_CERT_FILE="/ssl/${tls_client_cert}"
+            bashio::log.info "  Client certificate: /ssl/${tls_client_cert}"
+        fi
+
+        # Validate and set client key
+        if [[ -n "${tls_client_key}" ]]; then
+            if [[ "${tls_client_key}" == *".."* ]]; then
+                bashio::log.error "Invalid client key path: path traversal not allowed"
+                exit 1
+            fi
+            if [[ ! -f "/ssl/${tls_client_key}" ]]; then
+                bashio::log.error "Client key not found: /ssl/${tls_client_key}"
+                exit 1
+            fi
+            export CLIENT_KEY_FILE="/ssl/${tls_client_key}"
+            bashio::log.info "  Client key: /ssl/${tls_client_key}"
+        fi
+
+        # Handle skip verify option
+        if bashio::var.true "${tls_skip_verify}"; then
+            bashio::log.warning "TLS certificate verification disabled - this is insecure!"
+            export INSECURE_SKIP_VERIFY=true
+        fi
+    else
+        # Password-based authentication
+        bashio::log.info "Using password authentication for remote LAPI"
+        if [[ -z "${agent_username}" ]] || [[ -z "${agent_password}" ]]; then
+            bashio::log.error "Password auth requires 'agent_username' and 'agent_password'"
+            exit 1
+        fi
+        export LOCAL_API_URL="${remote_lapi_url}"
+        export AGENT_USERNAME="${agent_username}"
+        export AGENT_PASSWORD="${agent_password}"
+    fi
 fi
 
 # Disable or not the Online API

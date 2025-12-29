@@ -7,7 +7,8 @@ log_dir: /var/log/
 log_level: {LOG_LEVEL}
 api_url: {API_URL}
 api_key: {API_KEY}
-insecure_skip_verify: false
+insecure_skip_verify: {TLS_SKIP_VERIFY}
+{TLS_CONFIG}
 disable_ipv6: false
 deny_action: DROP
 deny_log: true
