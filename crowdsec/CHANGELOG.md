@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.7.7
+
+- Bump crowdsec version to 1.7.7
+
 ## 1.7.6
 
 - Bump crowdsec version to 1.7.6
