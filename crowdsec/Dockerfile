@@ -1,13 +1,12 @@
 # This is an alias stage so that --from=crowdsec works
 ARG CROWDSEC_VERSION=v1.7.7
-ARG BUILD_FROM=
+ARG BUILD_FROM
 
 FROM crowdsecurity/crowdsec:${CROWDSEC_VERSION} AS crowdsec
 FROM $BUILD_FROM
 
 ARG BUILD_ARCH
 ARG BUILD_IMG=crowdsecurity/crowdsec
-ARG CROWDSEC_VERSION
 
 RUN apt-get update
 RUN apt-get install -y -q --install-recommends --no-install-suggests \
