@@ -1,4 +1,8 @@
+# This is an alias stage so that --from=crowdsec works
+ARG CROWDSEC_VERSION=v1.7.7
 ARG BUILD_FROM
+
+FROM crowdsecurity/crowdsec:${CROWDSEC_VERSION} AS crowdsec
 FROM $BUILD_FROM
 
 ARG BUILD_ARCH
@@ -46,18 +50,18 @@ RUN echo "deb http://deb.debian.org/debian bookworm-backports main" >> /etc/apt/
 #Add alias until env variables will be supported by crowdsec.
 RUN echo 'alias cscli="cscli -c /config/.storage/crowdsec/config/config.yaml"' > /root/.bashrc
 
-COPY --from=crowdsecurity/crowdsec:v1.7.7 /staging/etc/crowdsec /etc/crowdsec
-COPY --from=crowdsecurity/crowdsec:v1.7.7 /staging/var/lib/crowdsec /var/lib/crowdsec
-COPY --from=crowdsecurity/crowdsec:v1.7.7 /usr/local/bin/crowdsec /usr/local/bin/crowdsec
-COPY --from=crowdsecurity/crowdsec:v1.7.7 /usr/local/bin/cscli /usr/local/bin/cscli
-COPY --from=crowdsecurity/crowdsec:v1.7.7 /docker_start.sh /docker_start.sh
-COPY --from=crowdsecurity/crowdsec:v1.7.7 /staging/etc/crowdsec/config.yaml /etc/crowdsec/config.yaml
+COPY --from=crowdsec /staging/etc/crowdsec /etc/crowdsec
+COPY --from=crowdsec /staging/var/lib/crowdsec /var/lib/crowdsec
+COPY --from=crowdsec /usr/local/bin/crowdsec /usr/local/bin/crowdsec
+COPY --from=crowdsec /usr/local/bin/cscli /usr/local/bin/cscli
+COPY --from=crowdsec /docker_start.sh /docker_start.sh
+COPY --from=crowdsec /staging/etc/crowdsec/config.yaml /etc/crowdsec/config.yaml
 #Due to the wizard using cp -n, we have to copy the config files directly from the source as -n does not exist in busybox cp
 #The files are here for reference, as users will need to mount a new version to be actually able to use notifications
-COPY --from=crowdsecurity/crowdsec:v1.7.7 /staging/etc/crowdsec/notifications/email.yaml /etc/crowdsec/notifications/email.yaml
-COPY --from=crowdsecurity/crowdsec:v1.7.7 /staging/etc/crowdsec/notifications/http.yaml /etc/crowdsec/notifications/http.yaml
-COPY --from=crowdsecurity/crowdsec:v1.7.7 /staging/etc/crowdsec/notifications/slack.yaml /etc/crowdsec/notifications/slack.yaml
-COPY --from=crowdsecurity/crowdsec:v1.7.7 /staging/etc/crowdsec/notifications/splunk.yaml /etc/crowdsec/notifications/splunk.yaml
+COPY --from=crowdsec /staging/etc/crowdsec/notifications/email.yaml /etc/crowdsec/notifications/email.yaml
+COPY --from=crowdsec /staging/etc/crowdsec/notifications/http.yaml /etc/crowdsec/notifications/http.yaml
+COPY --from=crowdsec /staging/etc/crowdsec/notifications/slack.yaml /etc/crowdsec/notifications/slack.yaml
+COPY --from=crowdsec /staging/etc/crowdsec/notifications/splunk.yaml /etc/crowdsec/notifications/splunk.yaml
 # This is an ugly workaround for an issue reported on discord
 # The container fails to start with the error "ln: failed to create symbolic link '/var/lib/crowdsec/data/*': File exists"
 # In the HA container, /staging/var/lib/crowdsec/data/ does not exist, and the crowdsec docker_start.sh script loops
@@ -68,7 +72,7 @@ COPY --from=crowdsecurity/crowdsec:v1.7.7 /staging/etc/crowdsec/notifications/sp
 RUN mkdir -p /staging/var/lib/crowdsec/data/ && touch /staging/var/lib/crowdsec/data/crowdsec.db
 # workaround to avoid having build issue ("failed to create image: failed to get layer")
 RUN true
-COPY --from=crowdsecurity/crowdsec:v1.7.7 /usr/local/lib/crowdsec/plugins /usr/local/lib/crowdsec/plugins
+COPY --from=crowdsec /usr/local/lib/crowdsec/plugins /usr/local/lib/crowdsec/plugins
 
 # Copy root filesystem
 COPY rootfs /
