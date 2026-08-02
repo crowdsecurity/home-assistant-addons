@@ -111,9 +111,9 @@ Disable Online API registration for signal sharing.
 
 ### Option: `enable_metrics` (optional)
 
-Enable the [Prometheus](https://prometheus.io/) metrics endpoint exposed by CrowdSec. When enabled, metrics are served on container port `6060/tcp`.
+Enable the [Prometheus](https://prometheus.io/) metrics endpoint exposed by CrowdSec. When enabled, metrics are served on container port `6060/tcp`, which is published to host port `6060` by default (`6060/tcp: 6060` in the add-on's port mapping) so it works out of the box — no extra manual step needed.
 
-This port is declared but not published by default (`6060/tcp: null`), matching how the Local API port is handled. To reach it from outside the add-on, also enable/map port `6060/tcp` in the add-on's **Network** settings in the Home Assistant UI.
+You can remap it to a different host port, or disable publishing entirely, via this add-on's **Network** settings in the Home Assistant UI — the container-side port itself always stays `6060`.
 
 ### Option: `metrics_listen_addr` (optional)
 

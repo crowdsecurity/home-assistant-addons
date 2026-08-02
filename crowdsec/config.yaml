@@ -15,10 +15,10 @@ arch:
   - i386
 ports:
   8080/tcp: null
-  6060/tcp: null
+  6060/tcp: 6060
 ports_description:
   8080/tcp: "CrowdSec Local API"
-  6060/tcp: "CrowdSec Prometheus metrics (only used if enable_metrics is true)"
+  6060/tcp: "CrowdSec Prometheus metrics (only used if enable_metrics is true; published by default so it works out of the box once enabled, can be remapped/disabled via this add-on's Network settings)"
 image: "ghcr.io/crowdsecurity/{arch}-addon-crowdsec"
 options:
   acquisition: |
