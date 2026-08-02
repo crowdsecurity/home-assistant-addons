@@ -42,6 +42,9 @@ api_url: "http://424ccef4-crowdsec:8080/"
 api_key: "a44bdb2ea50224f763015d04d2cd2e4b"
 update_frequency: "10s"
 log_level: info
+enable_metrics: false
+metrics_port: 6061
+metrics_listen_addr: "0.0.0.0"
 ```
 
 ### Option: `api_url` (required)
@@ -71,6 +74,20 @@ Can be:
 ### Option: `log_level` (optional)
 
 Controls logging level.
+
+### Option: `enable_metrics` (optional)
+
+Enable the [Prometheus](https://prometheus.io/) metrics endpoint exposed by the bouncer.
+
+This add-on uses `host_network: true`, so there is no Docker port mapping/Home Assistant UI toggle for its ports — when enabled, the metrics listener binds directly on the host at `metrics_listen_addr:metrics_port`. Make sure the chosen port isn't already in use on the host.
+
+### Option: `metrics_port` (optional)
+
+Port the Prometheus metrics endpoint listens on when `enable_metrics` is `true`. Defaults to `6061`, deliberately different from the `crowdsec` add-on's metrics port (`6060`) so both can be enabled on the same host without colliding.
+
+### Option: `metrics_listen_addr` (optional)
+
+Interface the Prometheus metrics endpoint binds to when `enable_metrics` is `true`. Defaults to `0.0.0.0` (all interfaces). Since this add-on runs on host networking, this is the only access control available for the metrics endpoint — restrict it to a specific host interface if needed.
 
 ## Support
 

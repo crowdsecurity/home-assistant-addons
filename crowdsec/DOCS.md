@@ -56,6 +56,8 @@ parsers_to_disable:
   - crowdsecurity/whitelists
 scenarios_to_disable: []
 disable_online_api: false
+enable_metrics: false
+metrics_listen_addr: "0.0.0.0"
 ```
 
 ### Option: `acquisition` (required)
@@ -106,6 +108,16 @@ All the scenarios you want to remove before running crowdsec.
 ### Option: `disable_online_api` (optional)
 
 Disable Online API registration for signal sharing.
+
+### Option: `enable_metrics` (optional)
+
+Enable the [Prometheus](https://prometheus.io/) metrics endpoint exposed by CrowdSec. When enabled, metrics are served on container port `6060/tcp`, which is published to host port `6060` by default (`6060/tcp: 6060` in the add-on's port mapping) so it works out of the box — no extra manual step needed.
+
+You can remap it to a different host port, or disable publishing entirely, via this add-on's **Network** settings in the Home Assistant UI — the container-side port itself always stays `6060`.
+
+### Option: `metrics_listen_addr` (optional)
+
+Interface the Prometheus metrics endpoint binds to inside the container when `enable_metrics` is `true`. Defaults to `0.0.0.0` (all interfaces). Restrict this to a specific address if you want to limit which interfaces can reach the metrics server directly, independent of the Docker port mapping above.
 
 ## Support
 

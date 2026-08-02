@@ -15,6 +15,8 @@ declare postoverflows
 declare parsers_to_disable
 declare scenarios_to_disable
 declare disable_online_api
+declare enable_metrics
+declare metrics_listen_addr
 
 # Get all arguments
 acquisition=$(bashio::config 'acquisition')
@@ -29,6 +31,8 @@ postoverflows=$(bashio::config 'postoverflows')
 parsers_to_disable=$(bashio::config 'parsers_to_disable')
 scenarios_to_disable=$(bashio::config 'scenarios_to_disable')
 disable_online_api=$(bashio::config 'disable_online_api')
+enable_metrics=$(bashio::config 'enable_metrics')
+metrics_listen_addr=$(bashio::config 'metrics_listen_addr')
 
 # Copy Crowdsec config and data files to make it persistent if it's not already
 if [ -d "/config/.storage/crowdsec/config/" ]; then
@@ -87,6 +91,17 @@ else
         cscli -c /config/.storage/crowdsec/config/config.yaml capi register > /config/.storage/crowdsec/config/online_api_credentials.yaml
         bashio::log.info "Registration to online API done"
     fi
+fi
+
+# Prometheus metrics settings
+if bashio::var.true "${enable_metrics}"; then
+    bashio::log.info "Enabling Prometheus metrics endpoint on ${metrics_listen_addr}:6060..."
+    yq eval -i '.prometheus.enabled = true' /config/.storage/crowdsec/config/config.yaml
+    yq eval -i ".prometheus.listen_addr = \"${metrics_listen_addr}\"" /config/.storage/crowdsec/config/config.yaml
+    yq eval -i '.prometheus.listen_port = 6060' /config/.storage/crowdsec/config/config.yaml
+else
+    yq eval -i '.prometheus.enabled = false' /config/.storage/crowdsec/config/config.yaml
+    yq eval -i '.prometheus.listen_addr = "127.0.0.1"' /config/.storage/crowdsec/config/config.yaml
 fi
 
 # Set collections to install env var

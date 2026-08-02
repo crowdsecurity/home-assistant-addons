@@ -4,12 +4,18 @@
 declare api_url
 declare api_key
 declare update_frequency
+declare enable_metrics
+declare metrics_port
+declare metrics_listen_addr
 
 # Get all arguments
 api_url=$(bashio::config 'api_url')
 api_key=$(bashio::config 'api_key')
 update_frequency=$(bashio::config 'update_frequency')
 log_level=$(bashio::config 'log_level')
+enable_metrics=$(bashio::config 'enable_metrics')
+metrics_port=$(bashio::config 'metrics_port')
+metrics_listen_addr=$(bashio::config 'metrics_listen_addr')
 nftables_hooks_tmp=$(bashio::config 'nftables_hooks')
 nftables_hooks="\n"
 for item in ${nftables_hooks_tmp}; do
@@ -23,6 +29,13 @@ sed -i "s|{API_KEY}|${api_key}|" /etc/crowdsec-firewall-bouncer/config.yaml
 sed -i "s|{UPDATE_FREQUENCY}|${update_frequency}|" /etc/crowdsec-firewall-bouncer/config.yaml
 sed -i "s|{LOG_LEVEL}|${log_level}|" /etc/crowdsec-firewall-bouncer/config.yaml
 sed -i "s|{NFTABLES_HOOKS}|${nftables_hooks}|" /etc/crowdsec-firewall-bouncer/config.yaml
+sed -i "s|{METRICS_ENABLED}|${enable_metrics}|" /etc/crowdsec-firewall-bouncer/config.yaml
+sed -i "s|{METRICS_PORT}|${metrics_port}|" /etc/crowdsec-firewall-bouncer/config.yaml
+sed -i "s|{METRICS_LISTEN_ADDR}|${metrics_listen_addr}|" /etc/crowdsec-firewall-bouncer/config.yaml
+
+if bashio::var.true "${enable_metrics}"; then
+    bashio::log.info "Prometheus metrics endpoint enabled on ${metrics_listen_addr}:${metrics_port} (host network)"
+fi
 
 bashio::log.info "-> Validating config file"
 /crowdsec-firewall-bouncer -c /etc/crowdsec-firewall-bouncer/config.yaml -t

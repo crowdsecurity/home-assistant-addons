@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.7.8-1
+
+- Add optional Prometheus metrics endpoint (`enable_metrics` option, published on host port `6060/tcp` by default so it works without extra manual steps, bind address configurable via `metrics_listen_addr`)
+
 ## 1.7.8
 
 - Bump crowdsec version to 1.7.8

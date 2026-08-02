@@ -28,4 +28,8 @@ nftables:
     table: crowdsec6
     chain: crowdsec6-chain
 nftables_hooks: {NFTABLES_HOOKS}
+prometheus:
+  enabled: {METRICS_ENABLED}
+  listen_addr: {METRICS_LISTEN_ADDR}
+  listen_port: {METRICS_PORT}
 
