@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.7.8-1
+
+- Fix detection for add-ons behind Home Assistant OS's `app_<hash>_<name>`/`app_core_<name>` journald identifier wrapping (Nginx Proxy Manager, Nginx, SSH), which previously caused their logs to silently never match upstream CrowdSec Hub parsers even with the right collection installed. Adds a bundled local normalizer parser and installs `crowdsecurity/nginx-proxy-manager`, `crowdsecurity/nginx` and `crowdsecurity/sshd` by default alongside the existing `crowdsecurity/home-assistant`.
+- Document an optional acquisition allowlist `filter:` recipe and per-add-on `journalctl_filter` alternative to reduce log volume/noise for add-ons CrowdSec has no parser for (Mosquitto/MQTT, MariaDB, NetBird, Uptime Kuma, ESPHome, NUT, Z-Wave JS UI, TasmoAdmin, Puppet, InfluxDB).
+- Add optional `whitelists` option to layer custom trusted IPs/CIDRs/expressions on top of CrowdSec's built-in RFC1918/loopback whitelist.
+
 ## 1.7.8
 
 - Bump crowdsec version to 1.7.8
