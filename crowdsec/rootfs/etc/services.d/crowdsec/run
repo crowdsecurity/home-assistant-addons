@@ -15,6 +15,7 @@ declare postoverflows
 declare parsers_to_disable
 declare scenarios_to_disable
 declare disable_online_api
+declare whitelists
 
 # Get all arguments
 acquisition=$(bashio::config 'acquisition')
@@ -29,6 +30,7 @@ postoverflows=$(bashio::config 'postoverflows')
 parsers_to_disable=$(bashio::config 'parsers_to_disable')
 scenarios_to_disable=$(bashio::config 'scenarios_to_disable')
 disable_online_api=$(bashio::config 'disable_online_api')
+whitelists=$(bashio::config 'whitelists')
 
 # Copy Crowdsec config and data files to make it persistent if it's not already
 if [ -d "/config/.storage/crowdsec/config/" ]; then
@@ -58,6 +60,41 @@ export CONFIG_FILE="/config/.storage/crowdsec/config/config.yaml"
 
 # Set acquis.yaml file
 echo "${acquisition}" > /config/.storage/crowdsec/config/acquis.yaml
+
+# Normalize Home Assistant OS supervised add-on journald identifiers
+# (app_<hash>_<name> / app_core_<name>) to the plain program names expected
+# by upstream CrowdSec Hub parsers (e.g. nginx-proxy-manager-logs, sshd-logs).
+# Regenerated unconditionally on every start, same as acquis.yaml above.
+mkdir -p /config/.storage/crowdsec/config/parsers/s01-parse/crowdsec-addons/
+cat <<'EOF' > /config/.storage/crowdsec/config/parsers/s01-parse/crowdsec-addons/haos-program-normalize.yaml
+name: crowdsec-addons/haos-program-normalize
+description: >-
+  Normalize Home Assistant OS supervised add-on journald identifiers
+  (app_<hash>_<name> / app_core_<name>) to the plain program names
+  expected by upstream CrowdSec Hub parsers.
+onsuccess: continue
+nodes:
+  - filter: "evt.Parsed.program endsWith '_nginxproxymanager'"
+    statics:
+      - parsed: program
+        value: nginx-proxy-manager
+  - filter: "evt.Parsed.program endsWith '_nginx'"
+    statics:
+      - parsed: program
+        value: nginx
+  - filter: "evt.Parsed.program endsWith '_ssh'"
+    statics:
+      - parsed: program
+        value: sshd
+EOF
+
+# Set (or clear) the optional user-defined whitelist file
+mkdir -p /config/.storage/crowdsec/config/parsers/s02-enrich/crowdsec-addons/
+if [[ -n "${whitelists}" ]]; then
+    echo "${whitelists}" > /config/.storage/crowdsec/config/parsers/s02-enrich/crowdsec-addons/user-whitelists.yaml
+else
+    rm -f /config/.storage/crowdsec/config/parsers/s02-enrich/crowdsec-addons/user-whitelists.yaml
+fi
 
 ## Environment variables settings
 

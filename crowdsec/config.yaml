@@ -1,7 +1,7 @@
 name: "Crowdsec"
 description: "CrowdSec - the open-source and participative IPS"
 url: "https://github.com/crowdsecurity/home-assistant-addons/blob/main/crowdsec/DOCS.md"
-version: "1.7.8"
+version: "1.7.8-1"
 slug: "crowdsec"
 init: false
 ingress: true
@@ -32,12 +32,16 @@ options:
   agent_password: ""
   collections:
     - crowdsecurity/home-assistant
+    - crowdsecurity/nginx-proxy-manager
+    - crowdsecurity/nginx
+    - crowdsecurity/sshd
   parsers: []
   scenarios: []
   postoverflows: []
   parsers_to_disable: []
   scenarios_to_disable: []
   disable_online_api: false
+  whitelists: ""
 environment:
   CONFIG_FILE: "/config/.storage/crowdsec/config/config.yaml"
 schema:
@@ -59,6 +63,7 @@ schema:
   scenarios_to_disable:
     - str
   disable_online_api: bool
+  whitelists: str
 map:
   - config:rw
 panel_icon: mdi:console-network
