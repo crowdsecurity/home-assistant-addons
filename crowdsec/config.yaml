@@ -45,7 +45,7 @@ schema:
   disable_lapi: bool
   remote_lapi_url: str
   agent_username: str
-  agent_password: str
+  agent_password: password
   collections:
     - str
   parsers:
