@@ -1,0 +1,5 @@
+#!/usr/bin/with-contenv bashio
+
+bashio::log.info 'Starting nginx for the web UI...'
+
+exec nginx -c /etc/nginx/nginx.conf

@@ -15,17 +15,27 @@ Follow these steps to get the add-on installed on your system:
 
 The add-on is configured by default to parse and detect bruteforce on home-assistant login interface.
 
-### Crowdsec Terminal
+### Crowdsec Web UI
 
-Crowdsec addon expose a web terminal to access the container where Crowdsec is running.
-So you can interact with Crowdsec ([bouncers management](https://docs.crowdsec.net/docs/next/user_guides/bouncers_configuration) for example).
+The add-on ships a web UI (Home Assistant ingress) where you can:
 
-You can add the Crowdsec terminal in sidebar :
+- see an overview of active decisions, recent alerts, top scenarios and countries
+- add and remove decisions (ban / captcha an IP or range)
+- browse and delete alerts
+- install, remove and upgrade hub items (collections, parsers, scenarios, …) and reload CrowdSec
+- manage allowlists (IPs and ranges that are never banned, e.g. your own public IPv6 prefix)
+- add and delete bouncers (the API key is shown once), and list machines
+- view `cscli metrics`
+- open a web terminal in the container (the **Terminal** tab) for anything else, using `cscli` ([bouncers management](https://docs.crowdsec.net/docs/next/user_guides/bouncers_configuration) for example)
+
+Hub items listed in the add-on configuration are (re)installed on every start, so add permanent items there.
+
+You can add the Crowdsec UI in sidebar :
 
 1. Go to : http://homeassistant.local:8123/hassio/dashboard and click on Crowdsec addon.
 2. Enable "Show in sidebar" option.
 
-Or you can open the crowdsec terminal (on the addon info page), by clicking on "OPEN WEB UI" button.
+Or you can open it (on the addon info page), by clicking on "OPEN WEB UI" button.
 
 
 ## Add-on Configuration

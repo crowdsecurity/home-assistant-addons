@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CrowdSec</title>
+<style>
+:root {
+  --bg: #f5f6f8; --card: #fff; --fg: #1c1f24; --muted: #6b7280; --line: #e5e7eb;
+  --accent: #5b4bdb; --accent-fg: #fff; --ok: #16a34a; --warn: #d97706; --bad: #dc2626;
+  --chip: #eef0f4; --hover: #f3f4f6;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #111318; --card: #1b1e25; --fg: #e6e8ec; --muted: #9aa1ad; --line: #2b2f38;
+    --accent: #8b7dff; --accent-fg: #0d0d12; --chip: #262a33; --hover: #232731;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--bg); color: var(--fg); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; display: flex; flex-direction: column; }
+header { display: flex; align-items: center; gap: 16px; padding: 12px 20px; background: var(--card); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+header h1 { font-size: 17px; margin: 0; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); display: inline-block; }
+.dot.ok { background: var(--ok); } .dot.bad { background: var(--bad); }
+#version { color: var(--muted); font-size: 12px; }
+nav { display: flex; gap: 2px; overflow-x: auto; margin-left: auto; }
+nav button { background: none; border: 0; color: var(--muted); padding: 8px 12px; border-radius: 8px; cursor: pointer; font: inherit; white-space: nowrap; }
+nav button:hover { background: var(--hover); color: var(--fg); }
+nav button.active { background: var(--chip); color: var(--fg); font-weight: 600; }
+main { flex: 1; padding: 20px; max-width: 1280px; width: 100%; margin: 0 auto; }
+main.full { max-width: none; padding: 0; display: flex; }
+section { display: none; } section.active { display: block; }
+#terminal.active { display: flex; flex: 1; }
+#terminal iframe { border: 0; flex: 1; width: 100%; min-height: calc(100vh - 60px); background: #000; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+.stat .label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+.stat .value { font-size: 28px; font-weight: 650; margin-top: 4px; font-variant-numeric: tabular-nums; }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 760px) { .grid2 { grid-template-columns: 1fr; } }
+h2 { font-size: 15px; margin: 0 0 12px; font-weight: 600; }
+.toolbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+.toolbar .spacer { flex: 1; }
+input, select { background: var(--card); color: var(--fg); border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; font: inherit; }
+input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+button.btn { background: var(--chip); color: var(--fg); border: 1px solid var(--line); border-radius: 8px; padding: 7px 12px; cursor: pointer; font: inherit; }
+button.btn:hover { filter: brightness(0.97); }
+button.primary { background: var(--accent); color: var(--accent-fg); border-color: transparent; }
+button.danger { color: var(--bad); }
+button.small { padding: 3px 8px; font-size: 12px; }
+button:disabled { opacity: .5; cursor: default; }
+.table-wrap { overflow-x: auto; background: var(--card); border: 1px solid var(--line); border-radius: 12px; }
+table { border-collapse: collapse; width: 100%; }
+th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 12px; color: var(--muted); font-weight: 600; background: var(--card); position: sticky; top: 0; }
+tr:last-child td { border-bottom: 0; }
+tbody tr:hover { background: var(--hover); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.mono { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 13px; }
+.muted { color: var(--muted); }
+.chip { display: inline-block; background: var(--chip); border-radius: 999px; padding: 1px 8px; font-size: 12px; }
+.chip.ok { color: var(--ok); } .chip.warn { color: var(--warn); } .chip.bad { color: var(--bad); }
+.empty { padding: 28px; text-align: center; color: var(--muted); }
+.bar { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+.bar .name { flex: 0 0 45%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bar .track { flex: 1; background: var(--chip); border-radius: 4px; height: 8px; overflow: hidden; }
+.bar .fill { display: block; background: var(--accent); height: 100%; }
+.bar .n { flex: 0 0 40px; text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
+#toast { position: fixed; bottom: 20px; right: 20px; max-width: 420px; padding: 12px 16px; border-radius: 10px; background: var(--fg); color: var(--bg); box-shadow: 0 6px 24px rgba(0,0,0,.2); display: none; white-space: pre-wrap; z-index: 10; }
+#toast.err { background: var(--bad); color: #fff; }
+dialog { border: 1px solid var(--line); border-radius: 12px; background: var(--card); color: var(--fg); padding: 20px; max-width: 520px; width: calc(100% - 32px); }
+dialog::backdrop { background: rgba(0,0,0,.4); }
+.keybox { word-break: break-all; background: var(--chip); padding: 10px; border-radius: 8px; margin: 10px 0; }
+details > summary { cursor: pointer; padding: 4px 0; }
+@media (max-width: 640px) { main { padding: 12px; } header { padding: 10px 12px; } nav { margin-left: 0; width: 100%; } }
+</style>
+</head>
+<body>
+<header>
+  <h1><span id="statusdot" class="dot"></span> CrowdSec <span id="version"></span></h1>
+  <nav id="tabs">
+    <button data-tab="overview" class="active">Overview</button>
+    <button data-tab="decisions">Decisions</button>
+    <button data-tab="allowlists">Allowlists</button>
+    <button data-tab="alerts">Alerts</button>
+    <button data-tab="hub">Hub</button>
+    <button data-tab="bouncers">Bouncers &amp; machines</button>
+    <button data-tab="metrics">Metrics</button>
+    <button data-tab="terminal">Terminal</button>
+  </nav>
+</header>
+
+<main id="main">
+  <section id="overview" class="active">
+    <div class="cards">
+      <div class="card stat"><div class="label">Active decisions</div><div class="value" id="s-decisions">–</div></div>
+      <div class="card stat"><div class="label">Alerts (last 100)</div><div class="value" id="s-alerts">–</div></div>
+      <div class="card stat"><div class="label">Bouncers</div><div class="value" id="s-bouncers">–</div></div>
+      <div class="card stat"><div class="label">Installed collections</div><div class="value" id="s-collections">–</div></div>
+    </div>
+    <div class="grid2">
+      <div class="card"><h2>Top scenarios</h2><div id="top-scenarios"></div></div>
+      <div class="card"><h2>Top countries</h2><div id="top-countries"></div></div>
+      <div class="card" style="grid-column: 1 / -1"><h2>Latest alerts</h2><div id="latest-alerts"></div></div>
+      <div class="card" style="grid-column: 1 / -1"><h2>Local API</h2><pre id="lapi" class="mono muted" style="margin:0;white-space:pre-wrap"></pre></div>
+    </div>
+  </section>
+
+  <section id="decisions">
+    <form class="toolbar" id="ban-form">
+      <input name="value" placeholder="IP or range, e.g. 1.2.3.4 or 1.2.3.0/24" required style="min-width:260px">
+      <select name="duration">
+        <option>1h</option><option selected>4h</option><option>24h</option><option>168h</option><option>720h</option>
+      </select>
+      <select name="type"><option>ban</option><option>captcha</option></select>
+      <input name="reason" placeholder="Reason (optional)">
+      <button class="btn primary" type="submit">Add decision</button>
+      <span class="spacer"></span>
+      <label class="muted"><input type="checkbox" id="dec-all"> Include blocklists</label>
+      <input id="dec-filter" placeholder="Filter…">
+    </form>
+    <div id="decisions-table"></div>
+  </section>
+
+  <section id="allowlists">
+    <div class="toolbar">
+      <form id="al-create" class="toolbar" style="margin:0">
+        <input name="name" placeholder="New allowlist name" required>
+        <input name="description" placeholder="Description (optional)">
+        <button class="btn primary" type="submit">Create allowlist</button>
+      </form>
+      <span class="spacer"></span>
+      <form id="al-check" class="toolbar" style="margin:0">
+        <input name="value" placeholder="Check IP…" required>
+        <button class="btn" type="submit">Check</button>
+      </form>
+    </div>
+    <p class="muted" style="margin-top:0">IPs and ranges in an allowlist are never banned – use this for your own networks, including your public IPv6 prefix (private IPv4 ranges are already whitelisted).</p>
+    <div id="allowlists-body"></div>
+  </section>
+
+  <section id="alerts">
+    <div class="toolbar">
+      <select id="alert-limit"><option>50</option><option selected>100</option><option>500</option></select>
+      <span class="spacer"></span>
+      <input id="alert-filter" placeholder="Filter…">
+    </div>
+    <div id="alerts-table"></div>
+  </section>
+
+  <section id="hub">
+    <div class="toolbar">
+      <select id="hub-type"></select>
+      <label class="muted"><input type="checkbox" id="hub-all"> Show available</label>
+      <input id="hub-filter" placeholder="Filter…">
+      <span class="spacer"></span>
+      <button class="btn" id="hub-upgrade">Update &amp; upgrade hub</button>
+      <button class="btn" id="reload">Reload CrowdSec</button>
+    </div>
+    <p class="muted" style="margin-top:0">Items listed in the add-on configuration are (re)installed on every start. Changes made here need a reload to take effect.</p>
+    <div id="hub-table"></div>
+  </section>
+
+  <section id="bouncers">
+    <div class="toolbar">
+      <h2 style="margin:0">Bouncers</h2>
+      <span class="spacer"></span>
+      <form id="bouncer-form" class="toolbar" style="margin:0">
+        <input name="name" placeholder="New bouncer name" required>
+        <button class="btn primary" type="submit">Add bouncer</button>
+      </form>
+    </div>
+    <div id="bouncers-table"></div>
+    <h2 style="margin-top:24px">Machines</h2>
+    <div id="machines-table"></div>
+  </section>
+
+  <section id="metrics"><div id="metrics-body"></div></section>
+
+  <section id="terminal"></section>
+</main>
+
+<dialog id="key-dialog">
+  <h2>Bouncer API key</h2>
+  <p>Copy this key now – it will not be shown again.</p>
+  <div class="keybox mono" id="key-value"></div>
+  <div class="toolbar" style="justify-content:flex-end;margin:0">
+    <button class="btn" id="key-copy">Copy</button>
+    <button class="btn primary" onclick="this.closest('dialog').close()">Done</button>
+  </div>
+</dialog>
+
+<div id="toast"></div>
+
+<script>
+"use strict";
+const $ = (s, el = document) => el.querySelector(s);
+const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const state = { tab: "overview", hub: null };
+
+async function api(path, body) {
+  const opts = body === undefined ? {} : { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) };
+  const res = await fetch("api/" + path, opts);  // relative: works behind HA ingress
+  let data = null;
+  try { data = await res.json(); } catch (_) {}
+  if (!res.ok) throw new Error((data && data.error) || res.statusText);
+  return data;
+}
+
+let toastTimer;
+function toast(msg, err) {
+  const t = $("#toast");
+  t.textContent = msg; t.className = err ? "err" : ""; t.style.display = "block";
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.style.display = "none", err ? 7000 : 3500);
+}
+
+async function run(fn, okMsg) {
+  try { const r = await fn(); if (okMsg) toast(typeof okMsg === "function" ? okMsg(r) : okMsg); return r; }
+  catch (e) { toast(e.message, true); }
+}
+
+function ago(ts) {
+  if (!ts) return "";
+  const d = (Date.now() - new Date(ts).getTime()) / 1000;
+  if (isNaN(d)) return esc(ts);
+  if (d < 5) return "just now";  // also covers small clock skew
+  if (d < 60) return Math.round(d) + "s ago";
+  if (d < 3600) return Math.round(d / 60) + "m ago";
+  if (d < 86400) return Math.round(d / 3600) + "h ago";
+  return Math.round(d / 86400) + "d ago";
+}
+
+function table(rows, cols, empty = "Nothing here") {
+  if (!rows.length) return `<div class="table-wrap"><div class="empty">${esc(empty)}</div></div>`;
+  return `<div class="table-wrap"><table><thead><tr>${cols.map(c => `<th${c.num ? ' class="num"' : ""}>${esc(c.label)}</th>`).join("")}</tr></thead><tbody>` +
+    rows.map(r => `<tr>${cols.map(c => `<td${c.num ? ' class="num"' : ""}>${c.html ? c.html(r) : esc(r[c.key])}</td>`).join("")}</tr>`).join("") +
+    `</tbody></table></div>`;
+}
+
+function bars(counts, max = 8) {
+  const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, max);
+  if (!entries.length) return `<div class="muted">No data yet</div>`;
+  const top = entries[0][1];
+  return entries.map(([k, n]) => `<div class="bar"><span class="name" title="${esc(k)}">${esc(k)}</span><span class="track"><span class="fill" style="width:${(n / top * 100).toFixed(1)}%"></span></span><span class="n">${n}</span></div>`).join("");
+}
+
+const countBy = (rows, key) => rows.reduce((m, r) => { const k = r[key] || "unknown"; m[k] = (m[k] || 0) + 1; return m; }, {});
+const filterRows = (rows, q) => !q ? rows : rows.filter(r => JSON.stringify(r).toLowerCase().includes(q.toLowerCase()));
+const ipCell = r => `<span class="mono">${esc(r.value)}</span>${r.country ? ` <span class="chip">${esc(r.country)}</span>` : ""}${r.as_name ? `<div class="muted" style="font-size:12px">${esc(r.as_name)}</div>` : ""}`;
+
+// ------------------------------------------------------------------ status
+async function loadStatus() {
+  try {
+    const s = await api("status");
+    $("#statusdot").className = "dot " + (s.running ? "ok" : "bad");
+    $("#statusdot").title = s.running ? "CrowdSec is running" : "CrowdSec is not running";
+    $("#version").textContent = String(s.version || "").replace(/^version:\s*/i, "");
+    $("#lapi").textContent = s.lapi || "";
+  } catch (e) { $("#statusdot").className = "dot bad"; }
+}
+
+// ---------------------------------------------------------------- overview
+async function loadOverview() {
+  const [dec, alerts, bouncers, hub] = await Promise.all([
+    api("decisions").catch(() => []), api("alerts?limit=100").catch(() => []),
+    api("bouncers").catch(() => []), api("hub").catch(() => ({})),
+  ]);
+  $("#s-decisions").textContent = dec.length;
+  $("#s-alerts").textContent = alerts.length;
+  $("#s-bouncers").textContent = bouncers.length;
+  $("#s-collections").textContent = (hub.collections || []).length;
+  $("#top-scenarios").innerHTML = bars(countBy(alerts, "scenario"));
+  $("#top-countries").innerHTML = bars(countBy(alerts, "country"));
+  $("#latest-alerts").innerHTML = table(alerts.slice(0, 10), [
+    { label: "Source", html: ipCell }, { label: "Scenario", key: "scenario" },
+    { label: "Events", key: "events_count", num: true }, { label: "When", html: r => ago(r.created_at) },
+  ], "No alerts – all quiet");
+}
+
+// --------------------------------------------------------------- decisions
+let decisions = [];
+async function loadDecisions() {
+  decisions = await api("decisions" + ($("#dec-all").checked ? "?all=1" : ""));
+  renderDecisions();
+}
+function renderDecisions() {
+  $("#decisions-table").innerHTML = table(filterRows(decisions, $("#dec-filter").value), [
+    { label: "Value", html: ipCell }, { label: "Type", html: r => `<span class="chip ${r.type === "ban" ? "bad" : "warn"}">${esc(r.type)}</span>` },
+    { label: "Scenario / reason", key: "scenario" }, { label: "Origin", key: "origin" },
+    { label: "Expires in", key: "duration" },
+    { label: "", html: r => `<button class="btn small danger" data-unban="${esc(r.id)}">Remove</button>` },
+  ], "No active decisions");
+}
+$("#decisions-table").addEventListener("click", async e => {
+  const id = e.target.dataset.unban; if (!id) return;
+  e.target.disabled = true;
+  await run(() => api("decisions/delete", { id: Number(id) }), "Decision removed");
+  loadDecisions();
+});
+$("#ban-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const body = Object.fromEntries(new FormData(e.target));
+  if (await run(() => api("decisions/add", body), `Decision added for ${body.value}`)) { e.target.value.value = ""; loadDecisions(); }
+});
+$("#dec-filter").addEventListener("input", renderDecisions);
+$("#dec-all").addEventListener("change", loadDecisions);
+
+// -------------------------------------------------------------- allowlists
+async function loadAllowlists() {
+  const lists = await api("allowlists") || [];
+  if (!lists.length) {
+    $("#allowlists-body").innerHTML = `<div class="card empty">No allowlists yet – create one above</div>`;
+    return;
+  }
+  $("#allowlists-body").innerHTML = lists.map(al => {
+    const ro = al.console_managed;
+    const items = table(al.items, [
+      { label: "Value", html: r => `<span class="mono">${esc(r.value)}</span>` },
+      { label: "Comment", key: "comment" },
+      { label: "Expires", html: r => r.expiration ? `<span title="${esc(r.expiration)}">${esc(new Date(r.expiration).toLocaleString())}</span>` : '<span class="muted">never</span>' },
+      { label: "Added", html: r => ago(r.created_at) },
+      { label: "", html: r => ro ? "" : `<button class="btn small danger" data-al-remove="${esc(al.name)}" data-value="${esc(r.value)}">Remove</button>` },
+    ], "Empty – add an IP or range below");
+    const addForm = ro ? `<p class="muted" style="margin:8px 0 0">Managed by the CrowdSec console – edit it there.</p>` :
+      `<form class="toolbar al-add" data-name="${esc(al.name)}" style="margin:10px 0 0">
+        <input name="value" placeholder="IP or range, e.g. 2a01:db8:1:2::/64" required style="min-width:260px">
+        <select name="expiration"><option value="">never expires</option><option value="24h">24h</option><option value="7d">7 days</option><option value="30d">30 days</option></select>
+        <input name="comment" placeholder="Comment (optional)">
+        <button class="btn primary" type="submit">Add</button>
+      </form>`;
+    return `<div class="card" style="margin-bottom:12px">
+      <div class="toolbar"><h2 style="margin:0"><span class="mono">${esc(al.name)}</span></h2>
+        ${ro ? '<span class="chip">console</span>' : ""}<span class="muted">${esc(al.description)}</span>
+        <span class="spacer"></span>
+        ${ro ? "" : `<button class="btn small danger" data-al-delete="${esc(al.name)}">Delete allowlist</button>`}</div>
+      ${items}${addForm}</div>`;
+  }).join("");
+}
+$("#allowlists-body").addEventListener("click", async e => {
+  const t = e.target;
+  if (t.dataset.alRemove) {
+    t.disabled = true;
+    await run(() => api("allowlists/remove", { name: t.dataset.alRemove, value: t.dataset.value }), `Removed ${t.dataset.value}`);
+    loadAllowlists();
+  } else if (t.dataset.alDelete && confirm(`Delete allowlist "${t.dataset.alDelete}" and all its entries?`)) {
+    await run(() => api("allowlists/delete", { name: t.dataset.alDelete }), "Allowlist deleted");
+    loadAllowlists();
+  }
+});
+$("#allowlists-body").addEventListener("submit", async e => {
+  if (!e.target.classList.contains("al-add")) return;
+  e.preventDefault();
+  const body = { name: e.target.dataset.name, ...Object.fromEntries(new FormData(e.target)) };
+  if (await run(() => api("allowlists/add", body), `Added ${body.value}`)) loadAllowlists();
+});
+$("#al-create").addEventListener("submit", async e => {
+  e.preventDefault();
+  const body = Object.fromEntries(new FormData(e.target));
+  if (await run(() => api("allowlists/create", body), `Allowlist ${body.name} created`)) { e.target.reset(); loadAllowlists(); }
+});
+$("#al-check").addEventListener("submit", async e => {
+  e.preventDefault();
+  await run(() => api("allowlists/check", { value: e.target.value.value }), r => r.message || "Not in any allowlist");
+});
+
+// ------------------------------------------------------------------ alerts
+let alerts = [];
+async function loadAlerts() { alerts = await api("alerts?limit=" + $("#alert-limit").value); renderAlerts(); }
+function renderAlerts() {
+  $("#alerts-table").innerHTML = table(filterRows(alerts, $("#alert-filter").value), [
+    { label: "ID", key: "id", num: true }, { label: "Source", html: ipCell },
+    { label: "Scenario", key: "scenario" }, { label: "Events", key: "events_count", num: true },
+    { label: "Decisions", key: "decisions", num: true }, { label: "Machine", key: "machine_id" },
+    { label: "When", html: r => `<span title="${esc(r.created_at)}">${ago(r.created_at)}</span>` },
+    { label: "", html: r => `<button class="btn small danger" data-del="${esc(r.id)}">Delete</button>` },
+  ], "No alerts");
+}
+$("#alerts-table").addEventListener("click", async e => {
+  const id = e.target.dataset.del; if (!id) return;
+  e.target.disabled = true;
+  await run(() => api("alerts/delete", { id: Number(id) }), "Alert deleted");
+  loadAlerts();
+});
+$("#alert-filter").addEventListener("input", renderAlerts);
+$("#alert-limit").addEventListener("change", loadAlerts);
+
+// --------------------------------------------------------------------- hub
+async function loadHub() {
+  state.hub = await api("hub" + ($("#hub-all").checked ? "?all=1" : ""));
+  const sel = $("#hub-type"), cur = sel.value || "collections";
+  sel.innerHTML = Object.keys(state.hub).map(k => `<option value="${esc(k)}">${esc(k)} (${state.hub[k].length})</option>`).join("");
+  sel.value = state.hub[cur] ? cur : Object.keys(state.hub)[0] || "";
+  renderHub();
+}
+function statusChip(s) {
+  const t = String(s || "").toLowerCase();
+  const cls = t.includes("enabled") || t.includes("installed") || t.includes("up-to-date") ? "ok" : t.includes("tainted") || t.includes("update") ? "warn" : "";
+  return `<span class="chip ${cls}">${esc(s || "available")}</span>`;
+}
+function renderHub() {
+  const kind = $("#hub-type").value;
+  const rows = filterRows((state.hub && state.hub[kind]) || [], $("#hub-filter").value);
+  $("#hub-table").innerHTML = table(rows, [
+    { label: "Name", html: r => `<span class="mono">${esc(r.name)}</span><div class="muted" style="font-size:12px">${esc(r.description)}</div>` },
+    { label: "Status", html: r => statusChip(r.status) }, { label: "Version", key: "local_version" },
+    { label: "", html: r => r.installed
+        ? `<button class="btn small danger" data-hub="remove" data-name="${esc(r.name)}">Remove</button>`
+        : `<button class="btn small primary" data-hub="install" data-name="${esc(r.name)}">Install</button>` },
+  ], "No items");
+}
+$("#hub-table").addEventListener("click", async e => {
+  const act = e.target.dataset.hub; if (!act) return;
+  e.target.disabled = true;
+  await run(() => api("hub/" + act, { type: $("#hub-type").value, name: e.target.dataset.name }),
+    `${act === "install" ? "Installed" : "Removed"} ${e.target.dataset.name} – reload CrowdSec to apply`);
+  loadHub();
+});
+$("#hub-type").addEventListener("change", renderHub);
+$("#hub-filter").addEventListener("input", renderHub);
+$("#hub-all").addEventListener("change", loadHub);
+$("#hub-upgrade").addEventListener("click", async e => {
+  e.target.disabled = true;
+  await run(() => api("hub/upgrade", {}), "Hub updated – reload CrowdSec to apply");
+  e.target.disabled = false; loadHub();
+});
+$("#reload").addEventListener("click", () => run(() => api("reload", {}), "CrowdSec reloading"));
+
+// ---------------------------------------------------------------- bouncers
+async function loadBouncers() {
+  const [b, m] = await Promise.all([api("bouncers"), api("machines")]);
+  $("#bouncers-table").innerHTML = table(b, [
+    { label: "Name", html: r => `<span class="mono">${esc(r.name)}</span>` }, { label: "IP", key: "ip_address" },
+    { label: "Type", key: "type" }, { label: "Version", key: "version" },
+    { label: "Last pull", html: r => ago(r.last_pull) },
+    { label: "", html: r => `<button class="btn small danger" data-bdel="${esc(r.name)}">Delete</button>` },
+  ], "No bouncers registered");
+  $("#machines-table").innerHTML = table(m, [
+    { label: "Machine", html: r => `<span class="mono">${esc(r.machineId)}</span>` }, { label: "IP", key: "ipAddress" },
+    { label: "Validated", html: r => r.isValidated ? '<span class="chip ok">yes</span>' : '<span class="chip warn">no</span>' },
+    { label: "Version", key: "version" }, { label: "Last heartbeat", html: r => ago(r.last_heartbeat || r.updated_at) },
+  ], "No machines");
+}
+$("#bouncers-table").addEventListener("click", async e => {
+  const name = e.target.dataset.bdel; if (!name || !confirm(`Delete bouncer "${name}"?`)) return;
+  await run(() => api("bouncers/delete", { name }), "Bouncer deleted");
+  loadBouncers();
+});
+$("#bouncer-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const r = await run(() => api("bouncers/add", { name: e.target.name.value }));
+  if (r) { $("#key-value").textContent = r.key; $("#key-dialog").showModal(); e.target.reset(); loadBouncers(); }
+});
+$("#key-copy").addEventListener("click", () => navigator.clipboard.writeText($("#key-value").textContent).then(() => toast("Copied")));
+
+// ----------------------------------------------------------------- metrics
+const isObj = v => v && typeof v === "object" && !Array.isArray(v);
+const isScalar = v => v === null || typeof v !== "object";
+const isEmpty = v => v == null || v === "" || (Array.isArray(v) && (!v.length || v.every(isEmpty))) || (isObj(v) && Object.values(v).every(isEmpty));
+const fmtNum = v => typeof v === "number" ? v.toLocaleString() : (v === undefined || v === null || v === "" ? '<span class="muted">–</span>' : esc(v));
+const titleCase = s => String(s).replace(/[-_]/g, " ").replace(/^\w/, c => c.toUpperCase());
+const pctBar = p => `<span style="display:inline-flex;align-items:center;gap:6px"><span class="track" style="display:inline-block;width:60px;height:6px;background:var(--chip);border-radius:3px;overflow:hidden"><span style="display:block;height:100%;width:${p}%;background:${p >= 50 ? "var(--ok)" : "var(--warn)"}"></span></span>${p}%</span>`;
+
+function metricsTable(obj, firstLabel) {
+  const rows = Object.entries(obj).filter(([, v]) => !isEmpty(v));
+  // flat map of name -> number: two-column table, largest first
+  if (rows.every(([, v]) => isScalar(v))) {
+    rows.sort((a, b) => (Number(b[1]) || 0) - (Number(a[1]) || 0));
+    return table(rows.map(([k, v]) => ({ k, v })), [
+      { label: firstLabel, html: r => `<span class="mono">${esc(r.k)}</span>` },
+      { label: "Count", html: r => fmtNum(r.v), num: true }]);
+  }
+  // map of name -> {col: number}: matrix table
+  if (rows.every(([, v]) => isObj(v) && Object.values(v).every(isScalar))) {
+    const keys = [...new Set(rows.flatMap(([, v]) => Object.keys(v)))];
+    const cols = [{ label: firstLabel, html: r => `<span class="mono">${esc(r._k)}</span>` },
+      ...keys.map(k => ({ label: titleCase(k), html: r => fmtNum(r[k]), num: true }))];
+    if (keys.includes("reads") && (keys.includes("parsed") || keys.includes("unparsed"))) {
+      cols.push({ label: "Parse rate", num: true, html: r => {
+        const total = Number(r.reads) || 0, parsed = Number(r.parsed) || 0;
+        return total ? pctBar(Math.round(parsed / total * 100)) : fmtNum(null);
+      } });
+    }
+    return table(rows.map(([k, v]) => ({ _k: k, ...v })), cols);
+  }
+  return null;
+}
+
+function renderMetric(val, label = "Name") {
+  if (isScalar(val)) return `<div>${fmtNum(val)}</div>`;
+  if (Array.isArray(val)) return `<pre class="mono" style="overflow:auto;margin:0">${esc(JSON.stringify(val, null, 2))}</pre>`;
+  const flat = metricsTable(val, label);
+  if (flat) return flat;
+  // nested: one sub-section per key
+  return Object.entries(val).filter(([, v]) => !isEmpty(v)).map(([k, v]) =>
+    `<h3 style="font-size:13px;margin:12px 0 6px;color:var(--muted)">${esc(titleCase(k))}</h3>${renderMetric(v)}`).join("");
+}
+
+async function loadMetrics() {
+  const data = await api("metrics") || {};
+  const entries = Object.entries(data);
+  const filled = entries.filter(([, v]) => !isEmpty(v));
+  const empty = entries.filter(([, v]) => isEmpty(v)).map(([k]) => k);
+  const firstLabel = { acquisition: "Source", alerts: "Reason", parsers: "Parser", scenarios: "Scenario", buckets: "Scenario", "lapi-bouncer": "Bouncer", "lapi-machine": "Machine", decisions: "Reason" };
+  const parts = filled.map(([section, val]) =>
+    `<details open class="card" style="margin-bottom:12px"><summary><h2 style="display:inline">${esc(titleCase(section))}</h2></summary><div style="margin-top:8px">${renderMetric(val, firstLabel[section] || "Name")}</div></details>`);
+  if (empty.length) parts.push(`<p class="muted" style="font-size:12px">No data yet for: ${empty.map(esc).join(", ")}</p>`);
+  $("#metrics-body").innerHTML = filled.length ? parts.join("") : `<div class="card empty">No metrics available yet</div>`;
+}
+
+// ---------------------------------------------------------------- terminal
+function showTerminal() {
+  const sec = $("#terminal");
+  if (!sec.firstChild) sec.innerHTML = `<iframe src="terminal/" title="CrowdSec terminal"></iframe>`;
+}
+
+// -------------------------------------------------------------------- tabs
+const loaders = { overview: loadOverview, decisions: loadDecisions, allowlists: loadAllowlists, alerts: loadAlerts, hub: loadHub, bouncers: loadBouncers, metrics: loadMetrics, terminal: showTerminal };
+function show(tab) {
+  state.tab = tab;
+  document.querySelectorAll("#tabs button").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
+  document.querySelectorAll("main > section").forEach(s => s.classList.toggle("active", s.id === tab));
+  $("#main").classList.toggle("full", tab === "terminal");
+  try { localStorage.setItem("crowdsec-tab", tab); } catch (_) {}
+  Promise.resolve(loaders[tab]()).catch(e => toast(e.message, true));
+}
+$("#tabs").addEventListener("click", e => { if (e.target.dataset.tab) show(e.target.dataset.tab); });
+
+let saved = "overview";
+try { saved = localStorage.getItem("crowdsec-tab") || saved; } catch (_) {}
+if (loaders[location.hash.slice(1)]) saved = location.hash.slice(1);  // deep link, e.g. #decisions
+loadStatus();
+show(loaders[saved] ? saved : "overview");
+setInterval(() => { if (!document.hidden) { loadStatus(); if (["overview", "decisions", "alerts"].includes(state.tab)) loaders[state.tab](); } }, 30000);
+</script>
+</body>
+</html>

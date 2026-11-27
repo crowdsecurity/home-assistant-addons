@@ -2,7 +2,7 @@ name: Builder
 
 env:
   BUILD_ARGS: "--test"
-  MONITORED_FILES: "build.yaml config.yaml Dockerfile rootfs/etc/services.d/crowdsec/run rootfs/etc/services.d/ttyd/run rootfs/etc/services.d/crowdsec-firewall-bouncer/run"
+  MONITORED_FILES: "build.yaml config.yaml Dockerfile rootfs/etc/services.d/crowdsec/run rootfs/etc/services.d/ttyd/run rootfs/etc/services.d/crowdsec-firewall-bouncer/run rootfs/etc/services.d/webui/run rootfs/etc/services.d/nginx/run rootfs/etc/nginx/nginx.conf rootfs/opt/webui/server.py rootfs/opt/webui/static/index.html"
 
 on:
   push:

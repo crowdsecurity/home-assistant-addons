@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.8.2-1
+
+- Add a web UI (ingress) on top of the existing web terminal: overview dashboard, decisions (add/remove), allowlists, alerts, hub management, bouncers & machines and metrics
+- The web terminal is still available as a tab in the UI
+
 ## 1.8.2
 
 - Bump crowdsec version to 1.8.2
