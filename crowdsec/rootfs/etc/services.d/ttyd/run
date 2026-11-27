@@ -2,6 +2,6 @@
 
 bashio::log.info 'Starting the ttyd daemon...'
 
-# Run the ttyd daemon
+# Run the ttyd daemon on loopback only; nginx exposes it at /terminal/
 cd /root
-exec ttyd tmux -u new -A -s homeassistant bash -l
+exec ttyd -p 7682 -i lo tmux -u new -A -s homeassistant bash -l

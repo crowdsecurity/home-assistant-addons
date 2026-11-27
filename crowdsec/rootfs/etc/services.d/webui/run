@@ -1,0 +1,6 @@
+#!/usr/bin/with-contenv bashio
+
+bashio::log.info 'Starting the CrowdSec web UI API...'
+
+export CONFIG_FILE="/config/.storage/crowdsec/config/config.yaml"
+exec python3 /opt/webui/server.py

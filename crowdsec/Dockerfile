@@ -15,6 +15,8 @@ RUN apt-get install -y -q --install-recommends --no-install-suggests \
     tmux \
     vim \
     nano \
+    nginx \
+    python3 \
     && if [ "${BUILD_ARCH}" = "armhf" ] || [ "${BUILD_ARCH}" = "armv7" ]; then \
     wget -q -O /usr/bin/yq "https://github.com/mikefarah/yq/releases/download/v4.20.1/yq_linux_arm"; \
     elif [ "${BUILD_ARCH}" = "aarch64" ]; then \
@@ -69,6 +71,8 @@ RUN mkdir -p /staging/var/lib/crowdsec/data/ && touch /staging/var/lib/crowdsec/
 # workaround to avoid having build issue ("failed to create image: failed to get layer")
 RUN true
 COPY --from=crowdsecurity/crowdsec:v1.8.2 /usr/local/lib/crowdsec/plugins /usr/local/lib/crowdsec/plugins
+
+RUN rm -f /etc/nginx/sites-enabled/default
 
 # Copy root filesystem
 COPY rootfs /
